@@ -129,12 +129,7 @@
         </form>
 
 
-        <form action="inventory" method="get" style="width:100%;margin:0;">
-          <button class="menu-card" type="submit">
-            <div class="icon-circle">📚</div>
-            <div class="menu-label">棚卸一覧</div>
-          </button>
-        </form>
+
 
         <form action="searchProduct" method="get" style="width:100%;margin:0;">
           <button class="menu-card" type="submit">

@@ -13,12 +13,12 @@
       background:transparent;
       color:#213547
     }
-    /* ミニメニュー分の左余白を確保 */
     .page-wrap{
       max-width:1100px;
       margin:40px auto;
       padding:16px;
-      margin-left:140px
+      margin-left:140px;
+      position:relative;
     }
     @media (max-width:640px){
       .page-wrap{margin-left:16px;margin-top:88px}
@@ -35,7 +35,7 @@
     }
     .floor{
       display:block;
-      max-width:80%; /* ページ幅の80%までに縮小 */
+      max-width:80%;
       height:auto;
       margin:0 auto;
     }
@@ -60,14 +60,47 @@
       color:#1572a1;
       font-weight:bold;
     }
-    .shelf-info tr:last-child td{
-      border-bottom:none;
+    .shelf-info tr:last-child td{border-bottom:none;}
+
+    /* 検索バー */
+    .search-bar{
+      position:absolute;
+      top:0;
+      right:0;
+      margin:16px;
     }
+    .search-bar form{
+      display:flex;gap:6px;
+    }
+    .search-bar input[type=text]{
+      padding:6px 10px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:0.95rem;
+    }
+    .search-bar button{
+      padding:6px 12px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .search-bar button:hover{opacity:0.9;}
   </style>
 </head>
 <body>
   <jsp:include page="_miniMenu.jsp" />
   <div class="page-wrap">
+    <!-- 右上検索バー -->
+    <div class="search-bar">
+      <form action="searchProduct" method="get">
+        <input type="text" name="keyword" placeholder="商品検索">
+        <button type="submit">検索</button>
+      </form>
+    </div>
+
     <h2>フロア図</h2>
     <p class="note">表示する画像: /resources/floorplan.png</p>
 
@@ -91,26 +124,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>A-01</td>
-          <td>ミネラルウォーター 500ml</td>
-          <td>¥120</td>
-        </tr>
-        <tr>
-          <td>A-02</td>
-          <td>ポテトチップス（うすしお）</td>
-          <td>¥150</td>
-        </tr>
-        <tr>
-          <td>B-05</td>
-          <td>チョコレートバー</td>
-          <td>¥100</td>
-        </tr>
-        <tr>
-          <td>C-10</td>
-          <td>インスタントラーメン（しょうゆ味）</td>
-          <td>¥180</td>
-        </tr>
+        <tr><td>A-01</td><td>ミネラルウォーター 500ml</td><td>¥120</td></tr>
+        <tr><td>A-02</td><td>ポテトチップス（うすしお）</td><td>¥150</td></tr>
+        <tr><td>B-05</td><td>チョコレートバー</td><td>¥100</td></tr>
+        <tr><td>C-10</td><td>インスタントラーメン（しょうゆ味）</td><td>¥180</td></tr>
       </tbody>
     </table>
   </div>

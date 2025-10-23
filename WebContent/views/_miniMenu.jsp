@@ -15,7 +15,7 @@
     Menu
   </a>
 
-  <a href="${pageContext.request.contextPath}/showmap" title="地図"
+  <a href="${pageContext.request.contextPath}/showMap" title="地図"
      style="display:block;width:64px;height:40px;border-radius:10px;background:transparent;border:0;
             margin:6px 0;text-align:center;line-height:40px;color:#1572a1;text-decoration:none;font-weight:700">
     Map
@@ -27,11 +27,7 @@
     Chat
   </a>
 
-  <a href="${pageContext.request.contextPath}/inventory" title="棚卸一覧"
-     style="display:block;width:64px;height:40px;border-radius:10px;background:transparent;border:0;
-            margin:6px 0;text-align:center;line-height:40px;color:#1572a1;text-decoration:none;font-weight:700">
-    Stock
-  </a>
+
 
   <!-- 修正ポイント: /addproduct → /productRegister -->
   <a href="${pageContext.request.contextPath}/productRegister" title="商品登録"
