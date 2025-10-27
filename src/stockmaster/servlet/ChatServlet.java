@@ -1,4 +1,4 @@
-package stockmaster;
+package stockmaster.servlet;
 
 import java.io.IOException;
 
