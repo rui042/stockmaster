@@ -7,7 +7,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>メニュー（2列・ラベル1行）</title>
+  <title>メニュー</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root{
