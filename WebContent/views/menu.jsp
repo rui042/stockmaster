@@ -37,7 +37,7 @@
       letter-spacing:0.15em;
       margin:20px 0 10px;
     }
-    header {
+        header {
       display:flex; justify-content:space-between; align-items:center;
       padding:10px 16px; background:transparent; z-index:10;
     }
@@ -47,7 +47,6 @@
       display:flex; align-items:center; gap:8px;
       background:transparent; border:0; cursor:pointer; padding:2px 6px;
     }
-    .notice-btn:hover .notice-label { text-decoration:underline; }
     .notice-badge {
       display:inline-flex; align-items:center; justify-content:center;
       width:26px; height:26px; border-radius:50%;
@@ -62,7 +61,6 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.1); display:none;
       min-width:160px; z-index:1000; padding:6px 0;
     }
-    .user-menu form { margin:0; }
     .user-menu button {
       display:block; width:100%; padding:10px 14px;
       background:none; border:none; text-align:left;
@@ -94,7 +92,6 @@
       color:var(--accent); font-weight:800; font-size:1rem;
     }
 
-    /* モーダルお知らせ */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -114,20 +111,10 @@
       width: 90%;
       text-align: left;
     }
-    .modal-content h2 {
-      margin-top: 0;
-      color: var(--primary);
-    }
-    .modal-content ul {
-      padding-left: 20px;
-    }
-    .modal-content li {
-      margin-bottom: 8px;
-    }
-    .modal-close {
-      margin-top: 20px;
-      text-align: right;
-    }
+    .modal-content h2 { margin-top: 0; color: var(--primary); }
+    .modal-content ul { padding-left: 20px; }
+    .modal-content li { margin-bottom: 8px; }
+    .modal-close { margin-top: 20px; text-align: right; }
     .modal-close button {
       padding: 8px 16px;
       font-size: 0.9rem;
@@ -135,12 +122,6 @@
       border: 1px solid var(--btn-border);
       border-radius: var(--radius);
       cursor: pointer;
-    }
-
-    @media (max-width:640px) {
-      .menu-grid { grid-template-columns:1fr; width:92%; }
-      .menu-card { max-width:100%; padding:10px; font-size:0.95rem; justify-content:center; }
-      .notice-label { display:none; }
     }
   </style>
 </head>
@@ -161,11 +142,11 @@
           <div id="userMenu" class="user-menu">
             <c:choose>
               <c:when test="${username == null}">
-                <form action="views/login.jsp" method="get"><button type="submit">ログイン</button></form>
-                <form action="views/register.jsp" method="get"><button type="submit">新規登録</button></form>
+                <form action="<%= request.getContextPath() %>/views/login.jsp" method="get"><button type="submit">ログイン</button></form>
+                <form action="<%= request.getContextPath() %>/views/register.jsp" method="get"><button type="submit">新規登録</button></form>
               </c:when>
               <c:otherwise>
-                <form action="logout" method="post"><button type="submit">ログアウト</button></form>
+                <form action="<%= request.getContextPath() %>/logout" method="post"><button type="submit">ログアウト</button></form>
               </c:otherwise>
             </c:choose>
           </div>
@@ -178,9 +159,17 @@
         <form action="productRegister" method="get"><button class="menu-card" type="submit"><div class="icon-circle">＋</div><div>商品登録</div></button></form>
         <form action="searchProduct" method="get"><button class="menu-card" type="submit"><div class="icon-circle">🔎</div><div>商品検索</div></button></form>
         <form action="showMap" method="get"><button class="menu-card" type="submit"><div class="icon-circle">🗺</div><div>マップ表示</div></button></form>
-                <form action="chat" method="get"><button class="menu-card" type="submit"><div class="icon-circle">💬</div><div>チャット相談</div></button></form>
-        <form action="receiveStock" method="get"><button class="menu-card" type="submit"><div class="icon-circle">📥</div><div>入荷処理</div></button></form>
-        <form action="shipStock" method="get"><button class="menu-card" type="submit"><div class="icon-circle">📤</div><div>出荷処理</div></button></form>
+        <form action="chat" method="get"><button class="menu-card" type="submit"><div class="icon-circle">💬</div><div>チャット相談</div></button></form>
+                <form action="receiveStock" method="get">
+          <button class="menu-card" type="submit">
+            <div class="icon-circle">📥</div><div>入荷処理</div>
+          </button>
+        </form>
+        <form action="shipStock" method="get">
+          <button class="menu-card" type="submit">
+            <div class="icon-circle">📤</div><div>出荷処理</div>
+          </button>
+        </form>
       </div>
     </main>
 
@@ -199,8 +188,7 @@
       </div>
     </div>
   </div>
-
-  <script>
+    <script>
     function toggleUserMenu() {
       const menu = document.getElementById("userMenu");
       menu.style.display = (menu.style.display === "block") ? "none" : "block";
