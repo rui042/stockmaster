@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -117,18 +118,24 @@
     <h2 style="margin-top:32px;">棚の商品情報</h2>
     <table class="shelf-info">
       <thead>
-        <tr>
-          <th>棚番号</th>
-          <th>商品名</th>
-          <th>価格</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>A-01</td><td>ミネラルウォーター 500ml</td><td>¥120</td></tr>
-        <tr><td>A-02</td><td>ポテトチップス（うすしお）</td><td>¥150</td></tr>
-        <tr><td>B-05</td><td>チョコレートバー</td><td>¥100</td></tr>
-        <tr><td>C-10</td><td>インスタントラーメン（しょうゆ味）</td><td>¥180</td></tr>
-      </tbody>
+    <tr>
+      <th>棚番号</th>
+      <th>商品名</th>
+      <th>価格</th>
+      <th>在庫数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <c:forEach var="item" items="${itemList}">
+      <tr>
+        <td>${item.shelfId}</td>
+        <td>${item.itemName}</td>
+        <td>¥${item.price}</td>
+        <td>${item.stockNow}</td>
+      </tr>
+    </c:forEach>
+  </tbody>
+
     </table>
   </div>
 </body>

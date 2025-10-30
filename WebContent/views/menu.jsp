@@ -158,7 +158,7 @@
       <div class="menu-grid">
         <form action="productRegister" method="get"><button class="menu-card" type="submit"><div class="icon-circle">＋</div><div>商品登録</div></button></form>
         <form action="searchProduct" method="get"><button class="menu-card" type="submit"><div class="icon-circle">🔎</div><div>商品検索</div></button></form>
-        <form action="showMap" method="get"><button class="menu-card" type="submit"><div class="icon-circle">🗺</div><div>マップ表示</div></button></form>
+        <form action="selectStore" method="get"><button class="menu-card" type="submit"><div class="icon-circle">🗺</div><div>マップ表示</div></button></form>
         <form action="chat" method="get"><button class="menu-card" type="submit"><div class="icon-circle">💬</div><div>チャット相談</div></button></form>
                 <form action="receiveStock" method="get">
           <button class="menu-card" type="submit">

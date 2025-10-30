@@ -1,6 +1,11 @@
 package stockmaster.servlet;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +14,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import stockmaster.bean.ShowMapBean;
 
 @WebServlet("/showMap")
 public class ShowMapServlet extends HttpServlet {
@@ -38,7 +45,51 @@ public class ShowMapServlet extends HttpServlet {
         req.setAttribute("hotspots", hotspots);
         req.setAttribute("floorImage", req.getContextPath() + "/resources/floorplan.png");
 
-        // あなたの構成に一致（WebContent/views/showmap.jsp）
+     // storeId を取得（GETパラメータから）
+        String storeIdParam = req.getParameter("storeId");
+        int storeId = 0;
+        if (storeIdParam != null && !storeIdParam.isEmpty()) {
+            storeId = Integer.parseInt(storeIdParam);
+        } else {
+            // storeIdが指定されていない場合の処理（例：エラー表示やデフォルト店舗）
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "店舗IDが指定されていません");
+            return;
+        }
+
+
+     // 棚の商品情報を取得
+        List<ShowMapBean> itemList = new ArrayList<>();
+
+        try {
+            // JDBCドライバのロード（最初に一度だけ呼び出す）
+            Class.forName("org.h2.Driver");
+
+            try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
+                 PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT STORE_ID, SHELF_ID, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?")) {
+
+                stmt.setInt(1, storeId);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    int sid = rs.getInt("STORE_ID");
+                    String shelfId = rs.getString("SHELF_ID");
+                    String itemName = rs.getString("ITEM_NAME");
+                    int price = rs.getInt("PRICE");
+                    int stockNow = rs.getInt("STOCK_NOW");
+                    int stockMin = rs.getInt("STOCK_MIN");
+
+                    itemList.add(new ShowMapBean(shelfId, itemName, price, stockNow, stockMin));
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new ServletException(e);
+        }
+
+        // JSPへデータを渡して画面遷移
+        req.setAttribute("itemList", itemList);
         req.getRequestDispatcher("/views/showmap.jsp").forward(req, resp);
     }
 }
+
+
