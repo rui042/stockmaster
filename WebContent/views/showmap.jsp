@@ -136,7 +136,7 @@
     <c:forEach var="item" items="${itemList}">
       <tr>
         <td>${item.shelfId}</td>
-        <td>${item.category}</td>
+        <td>${item.category}
         <td>${item.itemName}</td>
         <td>¥${item.price}</td>
         <td>
