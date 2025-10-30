@@ -1,31 +1,27 @@
 package stockmaster.dao;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-public class Dao {
-	/**
-	 * データソース:DataSource:クラスフィールド
-	 */
-	static DataSource ds;
+public abstract class Dao {
+    /** データソース */
+    private static DataSource ds;
 
-	/**
-	 * getConnectionメソッド データベースへのコネクションを返す
-	 *
-	 * @return データベースへのコネクション:Connection
-	 * @throws Exception
-	 */
-	public Connection getConnection() throws Exception {
-		// データソースがnullの場合
-		if (ds == null) {
-			// InitialContextを初期化
-			InitialContext ic = new InitialContext();
-			// データベースへ接続
-			ds = (DataSource) ic.lookup("java:/comp/env/jdbc/stms");
-		}
-		// データベースへのコネクションを返却
-		return ds.getConnection();
-	}
+    /**
+     * データベースへのコネクションを返す
+     * @return Connection
+     * @throws SQLException
+     * @throws NamingException
+     */
+    protected Connection getConnection() throws SQLException, NamingException {
+        if (ds == null) {
+            InitialContext ic = new InitialContext();
+            ds = (DataSource) ic.lookup("java:/comp/env/jdbc/stms");
+        }
+        return ds.getConnection();
+    }
 }
