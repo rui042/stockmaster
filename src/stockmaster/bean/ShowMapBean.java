@@ -2,14 +2,16 @@ package stockmaster.bean;
 
 public class ShowMapBean {
 	private String shelfId;
+	private String category;
     private String itemName;
     private int price;
     private int stockNow;
     private int stockMin;
 
     // コンストラクタ
-    public ShowMapBean(String shelfId, String itemName, int price, int stockNow, int stockMin) {
+    public ShowMapBean(String shelfId, String category, String itemName, int price, int stockNow, int stockMin) {
         this.shelfId = shelfId;
+        this.category = category;
         this.itemName = itemName;
         this.price = price;
         this.stockNow = stockNow;
@@ -22,6 +24,14 @@ public class ShowMapBean {
 
 	public void setShelfId(String shelfId) {
 		this.shelfId = shelfId;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getItemName() {

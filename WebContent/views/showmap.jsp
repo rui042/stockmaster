@@ -89,6 +89,12 @@
       font-weight:600;
     }
     .search-bar button:hover{opacity:0.9;}
+
+    /* 在庫の有無の色 */
+    .highlight {
+	  color: red;
+	  font-weight: bold;
+	}
   </style>
 </head>
 <body>
@@ -120,18 +126,30 @@
       <thead>
     <tr>
       <th>棚番号</th>
+      <th>分類</th>
       <th>商品名</th>
       <th>価格</th>
-      <th>在庫数</th>
+      <th>在庫</th>
     </tr>
   </thead>
   <tbody>
     <c:forEach var="item" items="${itemList}">
       <tr>
         <td>${item.shelfId}</td>
+        <td>${item.category}</td>
         <td>${item.itemName}</td>
         <td>¥${item.price}</td>
-        <td>${item.stockNow}</td>
+        <td>
+		  <c:choose>
+		    <c:when test="${item.stockNow > item.stockMin}">
+		      <span class="highlight">〇
+		    </c:when>
+		    <c:otherwise>
+		      ×
+		    </c:otherwise>
+		  </c:choose>
+		</td>
+
       </tr>
     </c:forEach>
   </tbody>

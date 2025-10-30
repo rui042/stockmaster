@@ -66,7 +66,7 @@ public class ShowMapServlet extends HttpServlet {
 
             try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
                  PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT STORE_ID, SHELF_ID, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?")) {
+                     "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?")) {
 
                 stmt.setInt(1, storeId);
                 ResultSet rs = stmt.executeQuery();
@@ -74,12 +74,14 @@ public class ShowMapServlet extends HttpServlet {
                 while (rs.next()) {
                     int sid = rs.getInt("STORE_ID");
                     String shelfId = rs.getString("SHELF_ID");
+                    String category = rs.getString("CATEGORY");
                     String itemName = rs.getString("ITEM_NAME");
                     int price = rs.getInt("PRICE");
                     int stockNow = rs.getInt("STOCK_NOW");
                     int stockMin = rs.getInt("STOCK_MIN");
 
-                    itemList.add(new ShowMapBean(shelfId, itemName, price, stockNow, stockMin));
+
+                    itemList.add(new ShowMapBean(shelfId, category, itemName, price, stockNow, stockMin));
                 }
             }
         } catch (ClassNotFoundException | SQLException e) {

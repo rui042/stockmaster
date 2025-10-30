@@ -120,24 +120,26 @@
   </style>
 </head>
 <body>
-<div class="modal-content">
-  <h2>店舗を選択してください</h2>
-  <form action="showMap" method="get">
-    <ul>
-      <c:forEach var="store" items="${storeList}">
-        <li>
-          <label>
-            <input type="radio" name="storeId" value="${store.storeId}" required>
-            ${store.storeName}
-          </label>
-        </li>
-      </c:forEach>
-    </ul>
-    <div class="modal-close">
-      <button type="submit">表示する</button>
-    </div>
-  </form>
-</div>
-
+<jsp:include page="_miniMenu.jsp" />
+  <div class="page-wrap">
+	<div class="modal-content">
+	  <h2>店舗を選択してください</h2>
+	  <form action="showMap" method="get">
+	    <ul>
+	      <c:forEach var="store" items="${storeList}">
+	        <li>
+	          <label>
+	            <input type="radio" name="storeId" value="${store.storeId}" required>
+	            ${store.storeName}
+	          </label>
+	        </li>
+	      </c:forEach>
+	    </ul>
+	    <div class="modal-close">
+	      <button type="submit">表示する</button>
+	    </div>
+	  </form>
+	</div>
+  </div>
 </body>
 </html>
