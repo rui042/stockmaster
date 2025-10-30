@@ -2,9 +2,7 @@ package stockmaster.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,54 +10,42 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import stockmaster.bean.Item;
+import stockmaster.dao.ItemDao;
+
 @WebServlet("/searchProduct")
 public class SearchProductServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String keyword = req.getParameter("keyword");
-        String genre = req.getParameter("genre");
+        String keyword = request.getParameter("keyword");
+        String productId = request.getParameter("productId");
 
-        // ★ 本来はDB検索するところ。ここではサンプルデータを用意
-        List<Map<String, String>> allProducts = new ArrayList<>();
+        ItemDao dao = new ItemDao();
+        List<Item> results = new ArrayList<>();
 
-        allProducts.add(makeProduct("P001", "りんご", "果物", "120"));
-        allProducts.add(makeProduct("P002", "みかん", "果物", "80"));
-        allProducts.add(makeProduct("P003", "牛乳", "飲料", "200"));
-        allProducts.add(makeProduct("P004", "ポテトチップス", "お菓子", "50"));
-        allProducts.add(makeProduct("P005", "トマト", "野菜", "60"));
-        allProducts.add(makeProduct("P006", "洗剤", "日用品", "30"));
-
-        // フィルタリング
-        List<Map<String, String>> results = new ArrayList<>();
-        for (Map<String, String> p : allProducts) {
-            boolean match = true;
-            if (keyword != null && !keyword.isEmpty()) {
-                if (!p.get("name").contains(keyword)) {
-                    match = false;
-                }
-            }
-            if (genre != null && !genre.isEmpty()) {
-                if (!p.get("genre").equals(genre)) {
-                    match = false;
-                }
-            }
-            if (match) results.add(p);
+        if (productId != null && !productId.isEmpty()) {
+            // バーコード検索
+            Item item = dao.searchById(productId);
+            if (item != null) results.add(item);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            // キーワード検索
+            results = dao.searchByKeyword(keyword);
+        } else {
+            // 🔽 初期表示：全件取得
+            results = dao.findAll();
         }
 
-        // JSPに渡す
-        req.setAttribute("results", results);
-        req.getRequestDispatcher("/views/searchProduct.jsp").forward(req, resp);
+        request.setAttribute("results", results);
+        request.getRequestDispatcher("/views/searchProduct.jsp").forward(request, response);
     }
 
-    private Map<String, String> makeProduct(String id, String name, String genre, String stock) {
-        Map<String, String> map = new HashMap<>();
-        map.put("id", id);
-        map.put("name", name);
-        map.put("genre", genre);
-        map.put("stock", stock);
-        return map;
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 }
