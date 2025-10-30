@@ -170,6 +170,11 @@
             <div class="icon-circle">📤</div><div>出荷処理</div>
           </button>
         </form>
+        <form action="searchStore" method="get">
+  			<button class="menu-card" type="submit">
+    		<div class="icon-circle">🏬</div><div>店舗検索</div>
+  			</button>
+		</form>
       </div>
     </main>
 

@@ -4,7 +4,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ログイン | すとっくますたー</title>
+  <title>新規登録 | すとっくますたー</title>
   <style>
     body {
       font-family: "Yu Gothic", "Segoe UI", system-ui, sans-serif;
@@ -16,9 +16,9 @@
       justify-content: center;
       height: 100vh;
     }
-    .login-box {
+    .register-box {
       width: 100%;
-      max-width: 420px;
+      max-width: 480px;
       background: #fff;
       padding: 40px 32px;
       border-radius: 16px;
@@ -95,16 +95,25 @@
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>すとっくますたー ログイン</h2>
-    <form action="${pageContext.request.contextPath}/login" method="post">
+  <div class="register-box">
+    <h2>新規登録</h2>
+    <form action="${pageContext.request.contextPath}/register" method="post">
       <label for="userId">ユーザーID</label>
       <input type="text" id="userId" name="userId" required autofocus>
+
+      <label for="username">ユーザー名</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="email">メールアドレス</label>
+      <input type="email" id="email" name="email" required>
 
       <label for="password">パスワード</label>
       <input type="password" id="password" name="password" required>
 
-      <button type="submit">ログイン</button>
+      <label for="confirmPassword">パスワード（確認）</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+      <button type="submit">登録する</button>
     </form>
 
     <c:if test="${not empty error}">
@@ -112,8 +121,7 @@
     </c:if>
 
     <div class="footer-links">
-      <a href="views/register.jsp">新規登録</a> |
-      <a href="#">パスワードを忘れた？</a>
+      <a href="views/login.jsp">ログイン画面へ戻る</a>
     </div>
   </div>
 </body>
