@@ -102,9 +102,10 @@
   <div class="page-wrap">
     <!-- 右上検索バー -->
     <div class="search-bar">
-      <form action="searchProduct" method="get">
-        <input type="text" name="keyword" placeholder="商品検索">
-        <button type="submit">検索</button>
+      <form action="${pageContext.request.contextPath}/showMap" method="get">
+        <input type="hidden" name="storeId" value="${param.storeId}">
+        <input type="text" name="keyword" placeholder="商品検索" value="${param.keyword}">
+	    <button type="submit">検索</button>
       </form>
     </div>
 
@@ -133,25 +134,29 @@
     </tr>
   </thead>
   <tbody>
-    <c:forEach var="item" items="${itemList}">
-      <tr>
-        <td>${item.shelfId}</td>
-        <td>${item.category}
-        <td>${item.itemName}</td>
-        <td>¥${item.price}</td>
-        <td>
-		  <c:choose>
-		    <c:when test="${item.stockNow > item.stockMin}">
-		      <span class="highlight">〇
-		    </c:when>
-		    <c:otherwise>
-		      ×
-		    </c:otherwise>
-		  </c:choose>
-		</td>
+    <c:if test="${not empty itemList}">
+	  <c:forEach var="item" items="${itemList}">
+	  <tr>
+	    <td>${item.shelfId}</td>
+	    <td>${item.category}</td>
+	    <td>${item.itemName}</td>
+	    <td>¥${item.price}</td>
+	    <td>
+	      <c:choose>
+	        <c:when test="${item.stockNow > item.stockMin}">
+	          <span class="highlight">〇</span>
+	        </c:when>
+	        <c:otherwise>×</c:otherwise>
+	      </c:choose>
+	    </td>
+	  </tr>
+	</c:forEach>
+	</c:if>
 
-      </tr>
-    </c:forEach>
+	<c:if test="${empty itemList}">
+	  <p>該当する商品は見つかりませんでした。</p>
+	</c:if>
+
   </tbody>
 
     </table>

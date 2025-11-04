@@ -64,11 +64,20 @@ public class ShowMapServlet extends HttpServlet {
             // JDBCドライバのロード（最初に一度だけ呼び出す）
             Class.forName("org.h2.Driver");
 
+            // 検索キーワード取得
+            String keyword = req.getParameter("keyword");
+
             try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
                  PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?")) {
+                     "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?"
+                    		 +(keyword != null && !keyword.isEmpty() ? " AND ITEM_NAME LIKE ?" : "")
+                		 )) {
 
                 stmt.setInt(1, storeId);
+                if (keyword != null && !keyword.isEmpty()) {
+                    stmt.setString(2, "%" + keyword + "%");
+                  }
+
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
