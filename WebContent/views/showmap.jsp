@@ -95,6 +95,20 @@
 	  color: red;
 	  font-weight: bold;
 	}
+	.out-of-stock {
+	  color: black;
+	  font-weight: bold;
+	}
+	.low-stock {
+	  color: green;
+	  font-weight: bold;
+	}
+
+	.search-note {
+	  margin-top: 8px;
+	  font-size: 0.9em;
+	  color: #666;
+	}
   </style>
 </head>
 <body>
@@ -102,12 +116,48 @@
   <div class="page-wrap">
     <!-- 右上検索バー -->
     <div class="search-bar">
-      <form action="${pageContext.request.contextPath}/showMap" method="get">
+      <form id="searchForm" action="${pageContext.request.contextPath}/showMap" method="get">
         <input type="hidden" name="storeId" value="${param.storeId}">
         <input type="text" name="keyword" placeholder="商品検索" value="${param.keyword}">
+
+        <select name="category">
+	      <option value="">すべての分類</option>
+	      <option value="食品" ${param.category == '食品' ? 'selected' : ''}>食品</option>
+	      <option value="飲料" ${param.category == '飲料' ? 'selected' : ''}>飲料</option>
+	      <option value="日用品" ${param.category == '日用品' ? 'selected' : ''}>日用品</option>
+	      <option value="文房具" ${param.category == '文房具' ? 'selected' : ''}>文房具</option>
+	      <option value="季節商品" ${param.category == '季節商品' ? 'selected' : ''}>季節商品</option>
+	      <option value="家電" ${param.category == '家電' ? 'selected' : ''}>家電</option>
+	      <option value="衣料品" ${param.category == '衣料品' ? 'selected' : ''}>衣料品</option>
+	      <option value="ペット用品" ${param.category == 'ペット用品' ? 'selected' : ''}>ペット用品</option>
+	      <option value="書籍" ${param.category == '書籍' ? 'selected' : ''}>書籍</option>
+	      <option value="健康用品" ${param.category == '健康用品' ? 'selected' : ''}>健康用品</option>
+	    </select>
+
 	    <button type="submit">検索</button>
       </form>
+      <p class="search-note">
+	    ※ 商品の検索を行うと、カテゴリは無視され商品の検索が優先されます。<br>
+	    ※ カテゴリの検索を行いたい場合は商品検索を削除してください。
+	  </p>
     </div>
+
+    <!-- 商品検索が行われた場合カテゴリはリセット -->
+    <script>
+	  document.addEventListener("DOMContentLoaded", function () {
+	    const form = document.getElementById("searchForm");
+	    const keywordInput = form.querySelector("input[name='keyword']");
+	    const categorySelect = form.querySelector("select[name='category']");
+
+	    form.addEventListener("submit", function (e) {
+	      if (keywordInput.value.trim() !== "") {
+	        // キーワードが入力されている場合、カテゴリを「すべての分類」にリセット
+	        categorySelect.value = "";
+	      }
+	    });
+	  });
+	</script>
+
 
     <h2>フロア図</h2>
     <p class="note">表示する画像: /resources/floorplan.png</p>
@@ -121,44 +171,49 @@
     <!-- 将来ホットスポットを重ねる領域 -->
     <div id="hotspotLayer" style="position:relative;margin-top:12px;display:none;"></div>
 
-    <!-- 商品情報サンプル -->
+    <!-- 商品情報 -->
     <h2 style="margin-top:32px;">棚の商品情報</h2>
     <table class="shelf-info">
-      <thead>
-    <tr>
-      <th>棚番号</th>
-      <th>分類</th>
-      <th>商品名</th>
-      <th>価格</th>
-      <th>在庫</th>
-    </tr>
-  </thead>
-  <tbody>
-    <c:if test="${not empty itemList}">
-    <p>検索結果：${resultCount}件</p>
-	  <c:forEach var="item" items="${itemList}">
-	  <tr>
-	    <td>${item.shelfId}</td>
-	    <td>${item.category}</td>
-	    <td>${item.itemName}</td>
-	    <td>¥${item.price}</td>
-	    <td>
-	      <c:choose>
-	        <c:when test="${item.stockNow > item.stockMin}">
-	          <span class="highlight">〇</span>
-	        </c:when>
-	      </c:choose>
-	    </td>
-	  </tr>
-	</c:forEach>
-	</c:if>
+	  <c:if test="${not empty itemList}">
+	    <thead>
+		  <tr>
+		    <th>棚番号</th>
+		    <th>分類</th>
+		    <th>商品名</th>
+		    <th>価格</th>
+		    <th>在庫</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  <p>検索結果：${resultCount}件</p>
+			<c:forEach var="item" items="${itemList}">
+			<tr>
+			  <td>${item.shelfId}</td>
+			  <td>${item.category}</td>
+			  <td>${item.itemName}</td>
+			  <td>¥${item.price}</td>
+			  <td>
+			    <c:choose>
+				  <c:when test="${item.stockNow > item.stockMin}">
+				    <span class="highlight">〇</span>
+				  </c:when>
+				  <c:when test="${item.stockNow == 0}">
+				    <span class="out-of-stock">×</span>
+				  </c:when>
+				  <c:otherwise>
+				    <span class="low-stock">△</span>
+				  </c:otherwise>
+				</c:choose>
+			  </td>
+			</tr>
+		  </c:forEach>
+		</c:if>
 
-	<c:if test="${empty itemList}">
-	  <p>該当する商品は見つかりませんでした。</p>
-	</c:if>
+		<c:if test="${empty itemList}">
+		  <p>該当する商品は見つかりませんでした。</p>
+		</c:if>
 
-  </tbody>
-
+	  </tbody>
     </table>
   </div>
 </body>

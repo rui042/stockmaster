@@ -57,6 +57,9 @@ public class ShowMapServlet extends HttpServlet {
         }
 
 
+     // 検索キーワード取得
+        String keyword = req.getParameter("keyword");
+        String category = req.getParameter("category");
      // 棚の商品情報を取得
         List<ShowMapBean> itemList = new ArrayList<>();
 
@@ -64,44 +67,60 @@ public class ShowMapServlet extends HttpServlet {
             // JDBCドライバのロード（最初に一度だけ呼び出す）
             Class.forName("org.h2.Driver");
 
-            // 検索キーワード取得
-            String keyword = req.getParameter("keyword");
+            try (Connection conn = DriverManager.getConnection(
+                    "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
 
-            try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
-                 PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN FROM MAP_VIEW WHERE STORE_ID = ?"
-                    		 +(keyword != null && !keyword.isEmpty() ? " AND ITEM_NAME LIKE ?" : "")
-                		 )) {
+                String sql;
+                PreparedStatement stmt;
 
-                stmt.setInt(1, storeId);
                 if (keyword != null && !keyword.isEmpty()) {
+                    // 商品名が指定されていれば、商品名で絞り込み（カテゴリは無視）
+                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
+                          "FROM MAP_VIEW WHERE STORE_ID = ? AND ITEM_NAME LIKE ?";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, storeId);
                     stmt.setString(2, "%" + keyword + "%");
-                  }
 
-                ResultSet rs = stmt.executeQuery();
+                } else if (category != null && !category.isEmpty()) {
+                    // 商品名が空でカテゴリが指定されていれば、カテゴリで絞り込み
+                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
+                          "FROM MAP_VIEW WHERE STORE_ID = ? AND CATEGORY = ?";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, storeId);
+                    stmt.setString(2, category);
 
-                while (rs.next()) {
-                    int sid = rs.getInt("STORE_ID");
-                    String shelfId = rs.getString("SHELF_ID");
-                    String category = rs.getString("CATEGORY");
-                    String itemName = rs.getString("ITEM_NAME");
-                    int price = rs.getInt("PRICE");
-                    int stockNow = rs.getInt("STOCK_NOW");
-                    int stockMin = rs.getInt("STOCK_MIN");
-
-
-                    itemList.add(new ShowMapBean(shelfId, category, itemName, price, stockNow, stockMin));
+                } else {
+                    // 両方空なら全件表示
+                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
+                          "FROM MAP_VIEW WHERE STORE_ID = ?";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, storeId);
                 }
-            }
+
+
+              ResultSet rs = stmt.executeQuery();
+              while (rs.next()) {
+                  itemList.add(new ShowMapBean(
+                          rs.getString("SHELF_ID"),
+                          rs.getString("CATEGORY"),
+                          rs.getString("ITEM_NAME"),
+                          rs.getInt("PRICE"),
+                          rs.getInt("STOCK_NOW"),
+                          rs.getInt("STOCK_MIN")
+                  ));
+              }
+          }
         } catch (ClassNotFoundException | SQLException e) {
             throw new ServletException(e);
         }
 
-        // JSPへデータを渡して画面遷移
-        req.setAttribute("resultCount", itemList.size());	// 件数
+        // 検索条件と結果をJSPへ渡す
         req.setAttribute("itemList", itemList);
+        req.setAttribute("resultCount", itemList.size());
+        req.setAttribute("keyword", keyword);
+        req.setAttribute("category", category);
+        req.setAttribute("storeId", storeId);
+
         req.getRequestDispatcher("/views/showmap.jsp").forward(req, resp);
     }
 }
-
-
