@@ -15,7 +15,7 @@
     Menu
   </a>
 
-  <a href="${pageContext.request.contextPath}/showMap" title="地図"
+  <a href="${pageContext.request.contextPath}/selectStore" title="地図"
      style="display:block;width:64px;height:40px;border-radius:10px;background:transparent;border:0;
             margin:6px 0;text-align:center;line-height:40px;color:#1572a1;text-decoration:none;font-weight:700">
     Map
