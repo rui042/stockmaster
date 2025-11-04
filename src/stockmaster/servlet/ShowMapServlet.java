@@ -98,6 +98,7 @@ public class ShowMapServlet extends HttpServlet {
         }
 
         // JSPへデータを渡して画面遷移
+        req.setAttribute("resultCount", itemList.size());	// 件数
         req.setAttribute("itemList", itemList);
         req.getRequestDispatcher("/views/showmap.jsp").forward(req, resp);
     }

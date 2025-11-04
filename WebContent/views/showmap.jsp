@@ -135,6 +135,7 @@
   </thead>
   <tbody>
     <c:if test="${not empty itemList}">
+    <p>検索結果：${resultCount}件</p>
 	  <c:forEach var="item" items="${itemList}">
 	  <tr>
 	    <td>${item.shelfId}</td>
@@ -146,7 +147,6 @@
 	        <c:when test="${item.stockNow > item.stockMin}">
 	          <span class="highlight">〇</span>
 	        </c:when>
-	        <c:otherwise>×</c:otherwise>
 	      </c:choose>
 	    </td>
 	  </tr>
