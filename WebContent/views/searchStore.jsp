@@ -89,6 +89,7 @@
   </style>
 </head>
 <body>
+<jsp:include page="_miniMenu.jsp" />
   <div class="wrap">
     <div class="app-title">店舗検索</div>
 
