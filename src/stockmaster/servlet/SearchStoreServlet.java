@@ -1,6 +1,15 @@
 package stockmaster.servlet;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,24 +17,64 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import stockmaster.bean.StoreBean;
+
 @WebServlet("/searchStore")
 public class SearchStoreServlet extends HttpServlet {
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-    // 検索条件の取得（今は未使用）
-    String name = request.getParameter("name");
-    String area = request.getParameter("area");
-    String category = request.getParameter("category");
-    String openOnly = request.getParameter("openOnly");
+    String name = req.getParameter("name");
+    String areaIdStr = req.getParameter("areaId");
 
-    // 仮の店舗リスト（DAOができるまでのダミーデータ）
-    //List<Store> storeList = new ArrayList<>();
-    //.add(new Store(1, "札幌ラーメン一番", "札幌市中央区南1条", "011-123-4567"));
-    //storeList.add(new Store(2, "カフェ・ド・蒼", "札幌市北区北24条", "011-987-6543"));
+    List<StoreBean> storeList = new ArrayList<>();
 
-    //request.setAttribute("storeList", storeList);
-    request.getRequestDispatcher("/views/storeSearch.jsp").forward(request, response);
+    try {
+      Class.forName("org.h2.Driver");
+
+      try (Connection conn = DriverManager.getConnection(
+              "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
+
+        String sql;
+        PreparedStatement stmt;
+
+        if (areaIdStr != null && !areaIdStr.isEmpty()) {
+          // 地域IDが指定されていれば STORE_ID で絞り込み
+          sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES WHERE STORE_ID = ?";
+          stmt = conn.prepareStatement(sql);
+          stmt.setInt(1, Integer.parseInt(areaIdStr));
+
+        } else {
+          // 地域IDが空なら全件表示
+          sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES";
+          stmt = conn.prepareStatement(sql);
+        }
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+          Time open = rs.getTime("OPEN_TIME");
+          Time close = rs.getTime("CLOSE_TIME");
+
+          StoreBean store = new StoreBean(
+              rs.getInt("STORE_ID"),
+              rs.getString("STORE_NAME"),
+              rs.getString("STORE_ADDRESS"),
+              rs.getString("STORE_PHONE"),
+              open != null ? open.toLocalTime() : LocalTime.MIN,
+              close != null ? close.toLocalTime() : LocalTime.MAX
+          );
+          store.updateOpenNow();
+          storeList.add(store);
+        }
+      }
+    } catch (ClassNotFoundException | SQLException e) {
+      throw new ServletException(e);
+    }
+
+    req.setAttribute("storeList", storeList);
+    req.setAttribute("searched", true);
+    req.setAttribute("areaId", areaIdStr); // 選択状態保持用
+    req.getRequestDispatcher("/views/searchStore.jsp").forward(req, resp);
   }
 }
