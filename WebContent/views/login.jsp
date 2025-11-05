@@ -98,20 +98,24 @@
       font-size: 0.9rem;
     }
 
-    .footer-links a {
+    .register-btn {
+      margin-top: 12px;
+      background: none;
+      border: none;
       color: #0b67c2;
-      text-decoration: none;
-      margin: 0 8px;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
-    .footer-links a:hover {
-      text-decoration: underline;
+    .register-btn:hover {
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
-    <!-- 🔹 ロゴ表示部分 -->
+    <!-- 🔹 ロゴ -->
     <div class="logo">
       <img src="${pageContext.request.contextPath}/resources/logo.png" alt="ストックマスター ロゴ">
     </div>
@@ -132,10 +136,12 @@
       <div class="error">${error}</div>
     </c:if>
 
-    <!-- 🔹 フッターリンク -->
+    <!-- 🔹 新規登録フォーム -->
     <div class="footer-links">
-      <a href="/register">新規登録</a> |
-      <a href="#">パスワードを忘れた？</a>
+      <form action="${pageContext.request.contextPath}/register" method="get">
+        <button type="submit" class="register-btn">新規登録はこちら</button>
+      </form>
+      <p><a href="#">パスワードを忘れた？</a></p>
     </div>
   </div>
 </body>

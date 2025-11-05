@@ -15,6 +15,19 @@ import stockmaster.dao.UserDao;
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 新規登録ページを表示（GETアクセス対応）
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // register.jsp へフォワード
+        request.getRequestDispatcher("/views/register.jsp").forward(request, response);
+    }
+
+    /**
+     * 新規登録処理（POSTアクセス対応）
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -40,14 +53,14 @@ public class RegisterServlet extends HttpServlet {
 
             System.out.println("[RegisterServlet] 入力不足");
             request.setAttribute("error", "すべての項目を入力してください。");
-            request.getRequestDispatcher("views/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/register.jsp").forward(request, response);
             return;
         }
 
         if (!password.equals(confirmPassword)) {
             System.out.println("[RegisterServlet] パスワード不一致");
             request.setAttribute("error", "パスワードが一致しません。");
-            request.getRequestDispatcher("views/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/register.jsp").forward(request, response);
             return;
         }
 
@@ -61,11 +74,12 @@ public class RegisterServlet extends HttpServlet {
 
         if (success) {
             System.out.println("[RegisterServlet] 登録成功 → login.jspへリダイレクト");
-            response.sendRedirect(request.getContextPath() + "views/login.jsp");
+            // ✅ スラッシュを追加して正しいパスに修正
+            response.sendRedirect(request.getContextPath() + "/views/login.jsp");
         } else {
             System.out.println("[RegisterServlet] 登録失敗 → register.jspへ戻す");
             request.setAttribute("error", "登録に失敗しました。ユーザーIDが既に存在する可能性があります。");
-            request.getRequestDispatcher("views/register.jsp").forward(request, response);
+            request.getRequestDispatcher("/views/register.jsp").forward(request, response);
         }
     }
 }
