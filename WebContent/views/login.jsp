@@ -112,7 +112,7 @@
     </c:if>
 
     <div class="footer-links">
-      <a href="views/register.jsp">新規登録</a> |
+      <a href="/register">新規登録</a> |
       <a href="#">パスワードを忘れた？</a>
     </div>
   </div>

@@ -21,7 +21,7 @@ public class LogoutServlet extends HttpServlet {
       session.invalidate();
     }
 
-    // ログイン画面へリダイレクト
-    response.sendRedirect(request.getContextPath() + "/views/login.jsp");
+    // URLを変えずに login.jsp へ遷移（内部フォワード）
+    request.getRequestDispatcher("/views/login.jsp").forward(request, response);
   }
 }

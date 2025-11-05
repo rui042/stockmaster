@@ -16,13 +16,19 @@ import stockmaster.dao.UserDao;
 public class LoginServlet extends HttpServlet {
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        // 🔹 GETで来た場合はログイン画面を表示
+        req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
 
-        // デバッグ用ログ
         System.out.println("入力値: userId=" + userId + ", password=" + password);
 
         UserDao dao = new UserDao();
@@ -35,11 +41,11 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("username", user.getName());
             session.setAttribute("isStaff", user.isStaff());
 
-            // ★ コンテキストパスを付けてリダイレクト
-            resp.sendRedirect(req.getContextPath() + "/views/menu.jsp");
+            // ✅ メニューにリダイレクト
+            resp.sendRedirect(req.getContextPath() + "/menu");
+
         } else {
             System.out.println("ログイン失敗: 該当ユーザーなし");
-
             req.setAttribute("error", "ユーザーIDまたはパスワードが間違っています");
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }
