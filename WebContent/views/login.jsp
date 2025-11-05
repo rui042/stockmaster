@@ -4,7 +4,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ログイン | すとっくますたー</title>
+  <title>ログイン | ストックマスター</title>
   <style>
     body {
       font-family: "Yu Gothic", "Segoe UI", system-ui, sans-serif;
@@ -16,6 +16,7 @@
       justify-content: center;
       height: 100vh;
     }
+
     .login-box {
       width: 100%;
       max-width: 420px;
@@ -25,23 +26,30 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       animation: fadeIn 0.6s ease;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    h2 {
-      margin: 0 0 24px;
-      color: #0b67c2;
-      font-size: 1.8rem;
+
+    .logo {
       text-align: center;
-      letter-spacing: 0.05em;
+      margin-bottom: 24px;
     }
+
+    .logo img {
+      width: 240px;
+      height: auto;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
     label {
       display: block;
       margin-top: 16px;
       font-weight: 600;
       color: #333;
     }
+
     input {
       width: 100%;
       padding: 12px;
@@ -51,11 +59,13 @@
       font-size: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     input:focus {
       border-color: #0b67c2;
       box-shadow: 0 0 0 3px rgba(11,103,194,0.2);
       outline: none;
     }
+
     button {
       margin-top: 28px;
       padding: 14px;
@@ -69,26 +79,31 @@
       font-size: 1.05rem;
       transition: transform 0.15s, opacity 0.2s;
     }
+
     button:hover {
       opacity: 0.9;
       transform: translateY(-2px);
     }
+
     .error {
       margin-top: 16px;
       color: #d93025;
       font-weight: 600;
       text-align: center;
     }
+
     .footer-links {
       margin-top: 20px;
       text-align: center;
       font-size: 0.9rem;
     }
+
     .footer-links a {
       color: #0b67c2;
       text-decoration: none;
       margin: 0 8px;
     }
+
     .footer-links a:hover {
       text-decoration: underline;
     }
@@ -96,7 +111,12 @@
 </head>
 <body>
   <div class="login-box">
-    <h2>すとっくますたー ログイン</h2>
+    <!-- 🔹 ロゴ表示部分 -->
+    <div class="logo">
+      <img src="${pageContext.request.contextPath}/resources/logo.png" alt="ストックマスター ロゴ">
+    </div>
+
+    <!-- 🔹 ログインフォーム -->
     <form action="${pageContext.request.contextPath}/login" method="post">
       <label for="userId">ユーザーID</label>
       <input type="text" id="userId" name="userId" required autofocus>
@@ -107,10 +127,12 @@
       <button type="submit">ログイン</button>
     </form>
 
+    <!-- 🔹 エラーメッセージ表示 -->
     <c:if test="${not empty error}">
       <div class="error">${error}</div>
     </c:if>
 
+    <!-- 🔹 フッターリンク -->
     <div class="footer-links">
       <a href="/register">新規登録</a> |
       <a href="#">パスワードを忘れた？</a>
