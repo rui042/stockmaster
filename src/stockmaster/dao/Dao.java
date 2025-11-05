@@ -17,7 +17,7 @@ public abstract class Dao {
      * @throws SQLException
      * @throws NamingException
      */
-    protected Connection getConnection() throws SQLException, NamingException {
+    public Connection getConnection() throws SQLException, NamingException {
         if (ds == null) {
             InitialContext ic = new InitialContext();
             ds = (DataSource) ic.lookup("java:/comp/env/jdbc/stockmaster");
