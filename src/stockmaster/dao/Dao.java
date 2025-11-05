@@ -20,7 +20,7 @@ public abstract class Dao {
     protected Connection getConnection() throws SQLException, NamingException {
         if (ds == null) {
             InitialContext ic = new InitialContext();
-            ds = (DataSource) ic.lookup("java:/comp/env/jdbc/stms");
+            ds = (DataSource) ic.lookup("java:/comp/env/jdbc/stockmaster");
         }
         return ds.getConnection();
     }
