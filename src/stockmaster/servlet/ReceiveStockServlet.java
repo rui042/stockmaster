@@ -1,8 +1,9 @@
 package stockmaster.servlet;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,52 +11,81 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import stockmaster.dao.Dao;
+
 @WebServlet("/receiveStock")
 public class ReceiveStockServlet extends HttpServlet {
-
-    // ★ 本来はDBを使うが、ここではサンプル用にメモリ上のデータを用意
-    private static Map<String, Integer> stockDB = new HashMap<>();
-
-    static {
-        stockDB.put("P001", 120);
-        stockDB.put("P002", 80);
-        stockDB.put("P003", 45);
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        // 入荷フォームを表示
-        req.getRequestDispatcher("/views/receiveStock.jsp").forward(req, resp);
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json; charset=UTF-8");
+
         String productId = req.getParameter("productId");
         String qtyStr = req.getParameter("quantity");
+        System.out.println("[ReceiveStockServlet] 商品ID=" + productId + ", 数量=" + qtyStr);
 
         int quantity = 0;
+        String message = "";
+        String status = "error";
+
         try {
             quantity = Integer.parseInt(qtyStr);
+            if (quantity <= 0) {
+                resp.getWriter().write("{\"status\":\"error\",\"message\":\"数量は正の数を指定してください。\"}");
+                return;
+            }
         } catch (NumberFormatException e) {
-            req.setAttribute("message", "数量が不正です");
-            req.getRequestDispatcher("/views/stockResult.jsp").forward(req, resp);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"数量が不正です。\"}");
             return;
         }
 
-        // 在庫更新処理
-        if (stockDB.containsKey(productId)) {
-            int current = stockDB.get(productId);
-            int updated = current + quantity;
-            stockDB.put(productId, updated);
-            req.setAttribute("message", "商品ID " + productId + " の在庫を " + current + " → " + updated + " に更新しました。");
-        } else {
-            req.setAttribute("message", "商品ID " + productId + " は存在しません。");
+        try (Connection conn = new Dao(){}.getConnection()) {
+            // 在庫取得
+            PreparedStatement select = conn.prepareStatement(
+                "SELECT STOCK_NOW FROM STOCK WHERE ITEM_ID = ?"
+            );
+            select.setString(1, productId);
+            ResultSet rs = select.executeQuery();
+
+            if (rs.next()) {
+                int current = rs.getInt("STOCK_NOW");
+                int updated = current + quantity;
+
+                PreparedStatement update = conn.prepareStatement(
+                    "UPDATE STOCK SET STOCK_NOW = ? WHERE ITEM_ID = ?"
+                );
+                update.setInt(1, updated);
+                update.setString(2, productId);
+                update.executeUpdate();
+
+                message = "商品ID " + productId + " の在庫を " + current + " → " + updated + " に更新しました。";
+                status = "success";
+
+            } else {
+                message = "商品ID " + productId + " は存在しません。";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = "データベースエラーが発生しました。";
         }
 
-        // 結果画面へ
-        req.getRequestDispatcher("/views/stockResult.jsp").forward(req, resp);
+        // JSON形式で結果を返す
+        String json = String.format(
+            "{\"status\":\"%s\",\"message\":\"%s\"}",
+            status,
+            message.replace("\"", "'")
+        );
+        resp.getWriter().write(json);
+    }
+
+    // GETでフォーム画面表示
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.getRequestDispatcher("/views/receiveStock.jsp").forward(req, resp);
     }
 }
