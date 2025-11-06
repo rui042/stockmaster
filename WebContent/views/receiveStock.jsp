@@ -1,4 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="stockmaster.dao.StoreDao" %>
+<%@ page import="stockmaster.bean.StoreBean" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -32,7 +35,7 @@
       font-weight: 600;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -91,6 +94,30 @@
   <div class="form-card">
     <h2>入荷処理</h2>
     <form id="receiveForm">
+
+      <!-- 店舗選択 -->
+      <label>店舗を選択
+        <select id="storeId" name="storeId" required>
+          <option value="">-- 店舗を選択してください --</option>
+          <%
+            try {
+              StoreDao dao = new StoreDao();
+              List<StoreBean> stores = dao.findAll();
+              for (StoreBean s : stores) {
+          %>
+                <option value="<%= s.getStoreId() %>"><%= s.getStoreName() %></option>
+          <%
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+          %>
+              <option value="">店舗情報の取得に失敗しました</option>
+          <%
+            }
+          %>
+        </select>
+      </label>
+
       <!-- 商品ID -->
       <label>商品ID（バーコード入力可）
         <input type="text" id="productId" name="productId" placeholder="商品IDをスキャンまたは入力" autofocus required>
@@ -114,11 +141,12 @@
   document.getElementById("receiveForm").addEventListener("submit", async (e) => {
     e.preventDefault(); // ページ遷移防止
 
+    const storeId = document.getElementById("storeId").value;
     const productId = document.getElementById("productId").value.trim();
     const quantity = document.getElementById("quantity").value.trim();
 
-    if (!productId || !quantity) {
-      showToast("商品IDと数量を入力してください", "error");
+    if (!storeId || !productId || !quantity) {
+      showToast("すべての項目を入力してください", "error");
       return;
     }
 
@@ -126,15 +154,15 @@
       const res = await fetch("receiveStock", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        // ⚠ JSPのEL式と衝突しないように \${} に修正
-        body: `productId=\${encodeURIComponent(productId)}&quantity=\${encodeURIComponent(quantity)}`
+        body: "storeId=" + encodeURIComponent(storeId)
+             + "&productId=" + encodeURIComponent(productId)
+             + "&quantity=" + encodeURIComponent(quantity)
       });
 
       const data = await res.json();
       console.log("レスポンス:", data);
       showToast(data.message, data.status);
 
-      // 成功時はリセットして次のスキャンに備える
       if (data.status === "success") {
         document.getElementById("receiveForm").reset();
         document.getElementById("productId").focus();
@@ -146,20 +174,16 @@
     }
   });
 
-  // 🔽 トースト表示関数
+  // トースト表示関数
   function showToast(message, status) {
     const toast = document.getElementById("toast");
     toast.textContent = message;
-
     if (status === "error") toast.style.backgroundColor = "#e53935";
     else if (status === "warning") toast.style.backgroundColor = "#fbc02d";
     else toast.style.backgroundColor = "#43a047";
 
     toast.classList.add("show");
-
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3000);
+    setTimeout(() => toast.classList.remove("show"), 3000);
   }
   </script>
 </body>
