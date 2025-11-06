@@ -41,11 +41,10 @@ public class SelectStoreServlet extends HttpServlet {
           int id = rs.getInt("STORE_ID");
           String name = rs.getString("STORE_NAME");
           String address = rs.getString("STORE_ADDRESS");
-
           String phone = rs.getString("STORE_PHONE");
-       // 時刻を LocalTime に変換
           String openTimeStr = rs.getString("OPEN_TIME");
           String closeTimeStr = rs.getString("CLOSE_TIME");
+          // 時刻を LocalTime に変換
           LocalTime openTime = LocalTime.parse(openTimeStr, timeFormatter);
           LocalTime closeTime = LocalTime.parse(closeTimeStr, timeFormatter);
 
