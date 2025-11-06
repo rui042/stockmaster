@@ -3,6 +3,8 @@ package stockmaster.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,75 +12,86 @@ import stockmaster.bean.StoreBean;
 
 public class StoreDao extends Dao {
 
-    /** 🔹 全店舗を取得（デバッグログ付き） */
-    public List<StoreBean> findAll() throws Exception {
+    /** 🔹 名前・住所で店舗を検索 */
+    public List<StoreBean> searchStores(String name, String area) {
         List<StoreBean> list = new ArrayList<>();
-        String sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS FROM STORES ORDER BY STORE_ID";
+        StringBuilder sql = new StringBuilder(
+            "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES WHERE 1=1"
+        );
 
-        System.out.println("[DEBUG] StoreDao.findAll() start");
+        List<String> values = new ArrayList<>();
 
-        try (Connection conn = getConnection()) {
+        if (name != null && !name.trim().isEmpty()) {
+            sql.append(" AND STORE_NAME LIKE ?");
+            values.add("%" + name.trim() + "%");
+        }
 
-            System.out.println("[DEBUG] Connection success: " + (conn != null));
+        if (area != null && !area.trim().isEmpty()) {
+            sql.append(" AND STORE_ADDRESS LIKE ?");
+            values.add("%" + area.trim() + "%");
+        }
 
-            try (PreparedStatement ps = conn.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-                System.out.println("[DEBUG] SQL executed successfully: " + sql);
+            for (int i = 0; i < values.size(); i++) {
+                stmt.setString(i + 1, values.get(i));
+            }
 
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    StoreBean bean = new StoreBean();
-                    bean.setStoreId(rs.getInt("STORE_ID"));
-                    bean.setStoreName(rs.getString("STORE_NAME"));
-                    bean.setStoreAddress(rs.getString("STORE_ADDRESS"));
-                    list.add(bean);
-                }
+                    Time open = rs.getTime("OPEN_TIME");
+                    Time close = rs.getTime("CLOSE_TIME");
 
-                System.out.println("[DEBUG] Records fetched: " + list.size());
+                    StoreBean store = new StoreBean(
+                        rs.getInt("STORE_ID"),
+                        rs.getString("STORE_NAME"),
+                        rs.getString("STORE_ADDRESS"),
+                        rs.getString("STORE_PHONE"),
+                        open != null ? open.toLocalTime() : LocalTime.MIN,
+                        close != null ? close.toLocalTime() : LocalTime.MAX
+                    );
+                    store.updateOpenNow();
+                    list.add(store);
+                }
             }
 
         } catch (Exception e) {
-            System.err.println("[ERROR] StoreDao.findAll() failed");
             e.printStackTrace();
-            throw e;
         }
 
-        System.out.println("[DEBUG] StoreDao.findAll() end");
         return list;
     }
 
-    /** 🔹 ID指定で1件取得（デバッグログ付き） */
-    public StoreBean findById(int storeId) throws Exception {
-        String sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS FROM STORES WHERE STORE_ID = ?";
-        System.out.println("[DEBUG] StoreDao.findById(" + storeId + ") start");
+    /** 🔹 全店舗取得（ドロップダウン用） */
+    public List<StoreBean> findAll() {
+        List<StoreBean> list = new ArrayList<>();
+        String sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES ORDER BY STORE_ID";
 
-        try (Connection conn = getConnection()) {
-            System.out.println("[DEBUG] Connection success: " + (conn != null));
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, storeId);
-                try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Time open = rs.getTime("OPEN_TIME");
+                Time close = rs.getTime("CLOSE_TIME");
 
-                    if (rs.next()) {
-                        StoreBean bean = new StoreBean();
-                        bean.setStoreId(rs.getInt("STORE_ID"));
-                        bean.setStoreName(rs.getString("STORE_NAME"));
-                        bean.setStoreAddress(rs.getString("STORE_ADDRESS"));
-
-                        System.out.println("[DEBUG] Store found: " + bean.getStoreName());
-                        return bean;
-                    } else {
-                        System.out.println("[DEBUG] No store found for ID=" + storeId);
-                    }
-                }
+                StoreBean store = new StoreBean(
+                    rs.getInt("STORE_ID"),
+                    rs.getString("STORE_NAME"),
+                    rs.getString("STORE_ADDRESS"),
+                    rs.getString("STORE_PHONE"),
+                    open != null ? open.toLocalTime() : LocalTime.MIN,
+                    close != null ? close.toLocalTime() : LocalTime.MAX
+                );
+                store.updateOpenNow();
+                list.add(store);
             }
+
         } catch (Exception e) {
-            System.err.println("[ERROR] StoreDao.findById() failed");
             e.printStackTrace();
-            throw e;
         }
 
-        System.out.println("[DEBUG] StoreDao.findById() end");
-        return null;
+        return list;
     }
 }

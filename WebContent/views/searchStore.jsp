@@ -89,68 +89,55 @@
   </style>
 </head>
 <body>
+<jsp:include page="_miniMenu.jsp" />
   <div class="wrap">
     <div class="app-title">店舗検索</div>
 
-    <header>
-      <div></div>
-      <div class="user-area" onclick="toggleUserMenu()">
-        <%= username != null ? username + " さん" : "ゲストさん" %>
-        <div id="userMenu" class="user-menu">
-          <c:choose>
-            <c:when test="${username == null}">
-              <form action="<%= request.getContextPath() %>/views/login.jsp" method="get"><button type="submit">ログイン</button></form>
-              <form action="<%= request.getContextPath() %>/views/register.jsp" method="get"><button type="submit">新規登録</button></form>
-            </c:when>
-            <c:otherwise>
-              <form action="<%= request.getContextPath() %>/logout" method="post"><button type="submit">ログアウト</button></form>
-            </c:otherwise>
-          </c:choose>
-        </div>
-      </div>
-    </header>
-
-    <form action="searchStore" method="get" class="search-form">
-      <label>店舗名：<input type="text" name="name" /></label>
-      <label>地域：<input type="text" name="area" /></label>
-      <label>カテゴリ：
-        <select name="category">
+    <!-- 検索フォーム -->
+    <form action="${pageContext.request.contextPath}/searchStore" method="get" class="search-form">
+      <label>地域：
+        <select name="areaId">
           <option value="">--選択--</option>
-          <option value="飲食">飲食</option>
-          <option value="アパレル">アパレル</option>
-          <option value="サービス">サービス</option>
+          <option value="1" ${areaId == '1' ? 'selected' : ''}>名寄市</option>
+          <option value="2" ${areaId == '2' ? 'selected' : ''}>富良野市</option>
         </select>
       </label>
-      <label><input type="checkbox" name="openOnly" value="true" /> 営業中のみ</label>
       <button type="submit">検索する</button>
     </form>
 
+
+    <!-- 検索結果表示 -->
     <div class="store-list">
-      <c:if test="${not empty storeList}">
-        <c:forEach var="store" items="${storeList}">
-          <div class="store-item">
-            <strong>${store.name}</strong><br/>
-            住所：${store.address}<br/>
-            電話：${store.phone}<br/>
-            <a href="storeDetail?id=${store.id}">詳細を見る</a>
-          </div>
-        </c:forEach>
-      </c:if>
-    </div>
+      <c:if test="${searched == true}">
+        <c:choose>
+          <c:when test="${not empty storeList}">
+            <c:forEach var="store" items="${storeList}">
+              <div class="store-item">
+                <strong>${store.storeName}</strong><br/>
+                住所：${store.storeAddress}<br/>
+                電話：${store.phone}<br/>
+                営業時間：${store.openTime} ～ ${store.closeTime}<br/>
+                <c:choose>
+                  <c:when test="${store.openNow}">
+                    <span style="color:green;">営業中</span>
+                  </c:when>
+                  <c:otherwise>
+                    <span style="color:red;">営業時間外</span>
+                  </c:otherwise>
+                </c:choose>
+                <br/>
+                <a href="storeDetail?id=${store.storeId}">詳細を見る</a>
+              </div>
+            </c:forEach>
+          </c:when>
+
+	      <c:otherwise>
+	        <p>該当する店舗は見つかりませんでした。</p>
+	      </c:otherwise>
+
+	    </c:choose>
+	  </c:if>
+	</div>
   </div>
-
-  <script>
-    function toggleUserMenu() {
-      const menu = document.getElementById("userMenu");
-      menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    }
-
-    document.addEventListener("click", function(e) {
-      const menu = document.getElementById("userMenu");
-      if (!e.target.closest(".user-area")) {
-        menu.style.display = "none";
-      }
-    });
-  </script>
 </body>
 </html>
