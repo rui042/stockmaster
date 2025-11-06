@@ -54,6 +54,12 @@
     Ship
   </a>
 
+  <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索"
+     style="display:block;width:64px;height:40px;border-radius:10px;background:transparent;border:0;
+            margin:6px 0;text-align:center;line-height:40px;color:#1572a1;text-decoration:none;font-weight:700">
+    Store
+  </a>
+
   <div style="flex:1"></div>
   <div style="font-size:.7rem;color:#6b7c8a;margin-top:8px">v1.0</div>
 
