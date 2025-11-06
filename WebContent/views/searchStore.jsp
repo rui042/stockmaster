@@ -115,8 +115,6 @@
               <div class="store-item">
                 <strong>${store.storeName}</strong><br/>
                 住所：${store.storeAddress}<br/>
-                電話：${store.phone}<br/>
-                営業時間：${store.openTime} ～ ${store.closeTime}<br/>
                 <c:choose>
                   <c:when test="${store.openNow}">
                     <span style="color:green;">営業中</span>
