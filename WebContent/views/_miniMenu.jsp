@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <style>
   .mini-menu {
     position: fixed;
@@ -78,18 +79,22 @@
   <a href="${pageContext.request.contextPath}/menu"
   	title="メニュー">Menu</a>
 
-    <a href="${pageContext.request.contextPath}/productRegister"
-  	  title="商品登録">Add</a>
+	<!-- スタッフ専用 -->
+	<c:if test="${sessionScope.isStaff}">
+	  <a href="${pageContext.request.contextPath}/productRegister"
+	   title="商品登録">Add</a>
 
-    <a href="${pageContext.request.contextPath}/searchProduct"
-  	  title="商品検索">Search</a>
+	  <a href="${pageContext.request.contextPath}/searchProduct"
+	   title="商品検索">Search</a>
 
-    <a href="${pageContext.request.contextPath}/receiveStock"
-  	  title="入荷処理">Recv</a>
+	  <a href="${pageContext.request.contextPath}/receiveStock"
+	   title="入荷処理">Recv</a>
 
-    <a href="${pageContext.request.contextPath}/shipStock"
-  	  title="出荷処理">Ship</a>
+	  <a href="${pageContext.request.contextPath}/shipStock"
+	   title="出荷処理">Ship</a>
+  	</c:if>
 
+	<!-- メニュー含め共通 -->
     <a href="${pageContext.request.contextPath}/selectStore"
   	  title="地図">Map</a>
 
