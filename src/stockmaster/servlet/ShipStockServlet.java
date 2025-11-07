@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,10 +12,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import stockmaster.bean.StoreBean;
 import stockmaster.dao.Dao;
+import stockmaster.dao.StoreDao;
 
 @WebServlet("/shipStock")
 public class ShipStockServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        try {
+            // 店舗リストを取得
+            StoreDao storeDao = new StoreDao();
+            List<StoreBean> storeList = storeDao.findAll();
+
+            // JSPに渡す
+            req.setAttribute("storeList", storeList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.setAttribute("error", "店舗情報の取得に失敗しました。");
+        }
+
+        // shipStock.jsp にフォワード
+        req.getRequestDispatcher("/views/shipStock.jsp").forward(req, resp);
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -23,28 +47,38 @@ public class ShipStockServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=UTF-8");
 
+        String storeIdStr = req.getParameter("storeId");
         String productId = req.getParameter("productId");
         String qtyStr = req.getParameter("quantity");
-        System.out.println("[ShipStockServlet] 商品ID=" + productId + ", 数量=" + qtyStr);
 
-        int quantity = 0;
-        String message = "";
+        String message;
         String status = "error";
 
-        try {
-            quantity = Integer.parseInt(qtyStr);
-        } catch (NumberFormatException e) {
-            resp.getWriter().write("{\"status\":\"error\",\"message\":\"数量が不正です。\"}");
+        if (storeIdStr == null || productId == null || qtyStr == null ||
+            storeIdStr.isEmpty() || productId.isEmpty() || qtyStr.isEmpty()) {
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください。\"}");
             return;
         }
 
-        try (Connection conn = new Dao(){}.getConnection()) { // Dao は抽象クラスなので匿名サブクラス化して利用
-            // 在庫取得
-            PreparedStatement select = conn.prepareStatement(
-                "SELECT STOCK_NOW FROM STOCK WHERE ITEM_ID = ?"
+        int storeId;
+        int quantity;
+        try {
+            storeId = Integer.parseInt(storeIdStr);
+            quantity = Integer.parseInt(qtyStr);
+        } catch (NumberFormatException e) {
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"入力値が不正です。\"}");
+            return;
+        }
+
+        try (Connection conn = new Dao(){}.getConnection()) {
+
+            // 在庫確認
+            PreparedStatement psSelect = conn.prepareStatement(
+                "SELECT STOCK_NOW FROM STOCK WHERE ITEM_ID = ? AND STORE_ID = ?"
             );
-            select.setString(1, productId);
-            ResultSet rs = select.executeQuery();
+            psSelect.setString(1, productId);
+            psSelect.setInt(2, storeId);
+            ResultSet rs = psSelect.executeQuery();
 
             if (rs.next()) {
                 int current = rs.getInt("STOCK_NOW");
@@ -52,20 +86,22 @@ public class ShipStockServlet extends HttpServlet {
                 if (current >= quantity) {
                     int updated = current - quantity;
 
-                    PreparedStatement update = conn.prepareStatement(
-                        "UPDATE STOCK SET STOCK_NOW = ? WHERE ITEM_ID = ?"
+                    // 即時在庫更新
+                    PreparedStatement psUpdate = conn.prepareStatement(
+                        "UPDATE STOCK SET STOCK_NOW = ? WHERE ITEM_ID = ? AND STORE_ID = ?"
                     );
-                    update.setInt(1, updated);
-                    update.setString(2, productId);
-                    update.executeUpdate();
+                    psUpdate.setInt(1, updated);
+                    psUpdate.setString(2, productId);
+                    psUpdate.setInt(3, storeId);
+                    psUpdate.executeUpdate();
 
                     message = "商品ID " + productId + " の在庫を " + current + " → " + updated + " に更新しました。";
                     status = "success";
                 } else {
-                    message = "商品ID " + productId + " の在庫が不足しています（現在: " + current + "）";
+                    message = "在庫が不足しています（現在: " + current + "）";
                 }
             } else {
-                message = "商品ID " + productId + " は存在しません。";
+                message = "該当する商品がこの店舗に存在しません。";
             }
 
         } catch (Exception e) {
@@ -73,19 +109,9 @@ public class ShipStockServlet extends HttpServlet {
             message = "データベースエラーが発生しました。";
         }
 
-        // JSON文字列を返す（Gsonなし）
-        String json = String.format(
-            "{\"status\":\"%s\",\"message\":\"%s\"}",
-            status,
-            message.replace("\"", "'")
-        );
+        // JSONレスポンス
+        String json = String.format("{\"status\":\"%s\",\"message\":\"%s\"}",
+            status, message.replace("\"", "'"));
         resp.getWriter().write(json);
-    }
-
-    // GETでアクセスされた場合（初期画面表示用）
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        req.getRequestDispatcher("/views/shipStock.jsp").forward(req, resp);
     }
 }
