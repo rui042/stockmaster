@@ -5,7 +5,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>出荷処理</title>
+  <title>出荷処理|すとっくますたー</title>
   <style>
     body {
       font-family: "Yu Gothic", "Segoe UI", system-ui, Arial, sans-serif;

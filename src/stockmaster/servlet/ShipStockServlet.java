@@ -56,7 +56,7 @@ public class ShipStockServlet extends HttpServlet {
 
         if (storeIdStr == null || productId == null || qtyStr == null ||
             storeIdStr.isEmpty() || productId.isEmpty() || qtyStr.isEmpty()) {
-            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください。\"}");
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください・。\"}");
             return;
         }
 
