@@ -56,6 +56,16 @@
       opacity: 0.9;
     }
 
+    .form-card {
+	  width: 100%;
+	  max-width: 600px;
+	  padding: 20px;
+	  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+	  background-color: #fff;
+	  border-radius: 8px;
+	}
+
+
     .note {
       font-size: 0.85rem;
       color: #666;
