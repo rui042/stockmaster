@@ -50,6 +50,7 @@ public class ProductRegisterServlet extends HttpServlet {
         String stockNowStr = request.getParameter("stockNow");
         String stockMinStr = request.getParameter("stockMin");
         String storeIdStr = request.getParameter("storeId");
+        String note = request.getParameter("note");
 
         String message = "";
         String status = "error";
@@ -73,6 +74,13 @@ public class ProductRegisterServlet extends HttpServlet {
             sendJson(response, status, message);
             return;
         }
+
+        // 棚番号の形式チェック
+        if (!shelfId.matches("^[A-Za-z]+-[0-9]+$")) {
+            sendJson(response, "error", "棚番号は「英字-数字」の形式で入力してください（例：A-01）。");
+            return;
+        }
+
 
         // 文字数チェック
         if (name.length() > 100 || category.length() > 50 || shelfId.length() > 20) {
@@ -117,18 +125,44 @@ public class ProductRegisterServlet extends HttpServlet {
                     stmt.executeUpdate();
                 }
 
-                // 棚登録（存在しない場合のみ）
-                String checkShelf = "SELECT COUNT(*) FROM SHELF WHERE SHELF_ID = ? AND STORE_ID = ?";
+                // 棚登録
+                String checkShelf = "SELECT CATEGORY, NOTE FROM SHELF WHERE SHELF_ID = ? AND STORE_ID = ?";
                 try (PreparedStatement checkStmt = conn.prepareStatement(checkShelf)) {
                     checkStmt.setString(1, shelfId);
                     checkStmt.setInt(2, storeId);
                     ResultSet rs = checkStmt.executeQuery();
-                    if (rs.next() && rs.getInt(1) == 0) {
-                        String insertShelf = "INSERT INTO SHELF (SHELF_ID, STORE_ID, CATEGORY) VALUES (?, ?, ?)";
+                    if (rs.next()) {
+                        String existingCategory = rs.getString("CATEGORY");
+                        String existingNote = rs.getString("NOTE");
+
+                        // 分類が一致しない場合はエラー
+                        if (existingCategory != null && !existingCategory.equals(category)) {
+                        	message = String.format("棚番号「%s」は既に存在します。分類は「%s」で指定してください。", shelfId, existingCategory);
+                        	sendJson(response, "error", message);
+                            return;
+                        }
+                        // NOTEがNULLまたは空の場合UPDATEでNOTEを追加
+                        if ((existingNote == null || existingNote.trim().isEmpty()) && note != null && !note.trim().isEmpty()) {
+                            String updateNote = "UPDATE SHELF SET NOTE = ? WHERE SHELF_ID = ? AND STORE_ID = ?";
+                            try (PreparedStatement updateStmt = conn.prepareStatement(updateNote)) {
+                                updateStmt.setString(1, note);
+                                updateStmt.setString(2, shelfId);
+                                updateStmt.setInt(3, storeId);
+                                updateStmt.executeUpdate();
+                            }
+                        } else if (note != null && !note.trim().isEmpty()) {
+                            // NOTEがすでに存在している場合上書き不可
+                            sendJson(response, "error", "既存の棚には備考を上書きできません。");
+                            return;
+                        }
+                    } else {
+                        // 棚が存在しない場合は新規追加
+                        String insertShelf = "INSERT INTO SHELF (SHELF_ID, STORE_ID, CATEGORY, NOTE) VALUES (?, ?, ?, ?)";
                         try (PreparedStatement insertStmt = conn.prepareStatement(insertShelf)) {
                             insertStmt.setString(1, shelfId);
                             insertStmt.setInt(2, storeId);
                             insertStmt.setString(3, category);
+                            insertStmt.setString(4, note);
                             insertStmt.executeUpdate();
                         }
                     }

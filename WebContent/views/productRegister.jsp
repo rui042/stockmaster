@@ -96,6 +96,12 @@
 	  background-color: #fff;
 	}
 
+	.form-textarea {
+	  width: 100%;
+	  height: 100px;
+	  resize: vertical;
+	}
+
     button{
       margin-top:20px;padding:12px 20px;
       background:var(--btn-hover-bg);color:#fff;
@@ -133,41 +139,45 @@
         <h2>商品登録</h2>
 
         <form id="productForm" action="productRegister" method="post">
-		  <label>商品番号(バーコード入力可)
+		  <label>商品番号(バーコード入力可) <span style="color: red;">*</span>
 		    <input type="text" name="itemId" pattern="\d{13}" maxlength="13" required autofocus>
 		  </label>
 
-		  <label>商品名
+		  <label>商品名 <span style="color: red;">*</span>
 		    <input type="text" name="name" required>
 		  </label>
 
-		  <label>棚番号（例：A-01）
+		  <label>棚番号（例：A-01） <span style="color: red;">*</span>
 		    <input type="text" name="shelf" required>
 		  </label>
 
-		  <label>分類
+		  <label>分類 <span style="color: red;">*</span>
 		    <input type="text" name="category" required>
 		  </label>
 
-		  <label>価格
+		  <label>価格 <span style="color: red;">*</span>
 		    <input type="number" name="price" min="0" required>
 		  </label>
 
-		  <label>入荷数（在庫数）
+		  <label>入荷数（在庫数） <span style="color: red;">*</span>
 		    <input type="number" name="stockNow" min="1" required>
 		  </label>
 
-		  <label>ストック数
+		  <label>ストック数 <span style="color: red;">*</span>
 		    <input type="number" name="stockMin" min="0" required>
 		  </label>
 
-		  <label>店舗選択
+		  <label>店舗選択 <span style="color: red;">*</span>
 			<select name="storeId" required>
 			<option value="">--選択--</option>
 			<c:forEach var="store" items="${storeList}">
 			<option value="${store.storeId}">${store.storeName}</option>
 			</c:forEach>
 			</select>
+		  </label>
+
+		  <label>備考
+			<textarea name="note" class="form-textarea" maxlength="200"></textarea>
 		  </label>
 
 		  <button type="submit">登録する</button>
