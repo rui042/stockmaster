@@ -17,6 +17,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import stockmaster.bean.UserBean;
 
 @WebServlet("/productRegister")
 public class ProductRegisterServlet extends HttpServlet {
@@ -27,6 +30,16 @@ public class ProductRegisterServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
+
+        // ▼ ログイン状態確認
+        HttpSession session = request.getSession(false);
+        UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
+
+        if (loginUser == null) {
+            // 未ログイン時はJSONでエラーを返す
+            sendJson(response, "error", "ログインが必要です。");
+            return;
+        }
 
         // 一部後に数値変換
         String itemId = request.getParameter("itemId");
@@ -161,9 +174,19 @@ public class ProductRegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-    	List<Map<String, Object>> storeList = new ArrayList<>();
+        // ▼ ログイン状態確認
+        HttpSession session = request.getSession(false);
+        UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
 
-    	// 店舗選択
+        if (loginUser == null) {
+            // 未ログイン → ログイン画面へ
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        List<Map<String, Object>> storeList = new ArrayList<>();
+
+        // 店舗選択リスト取得
         try {
             Class.forName("org.h2.Driver");
 
@@ -188,6 +211,7 @@ public class ProductRegisterServlet extends HttpServlet {
         }
 
         request.setAttribute("storeList", storeList);
+        request.setAttribute("loginUser", loginUser); // JSPでもユーザー情報使用可
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/views/productRegister.jsp");
         dispatcher.forward(request, response);

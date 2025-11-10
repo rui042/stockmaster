@@ -1,109 +1,181 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
 <style>
-  .mini-menu {
+  body {
+    margin: 0;
+    font-family: "Yu Gothic", "Segoe UI", system-ui, Arial, sans-serif;
+  }
+
+  /* サイドメニュー */
+  .side-menu {
     position: fixed;
-    left: 16px;
-    top: 16px;
-    width: 96px;
+    left: 0;
+    top: 0;
+    width: 120px;
+    height: 100vh;
+    background: #0b67c2;
+    color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(180deg, #fff, #f7fbff);
-    border-radius: 12px;
-    padding: 10px;
-    border: 1px solid #e6eef6;
-    box-shadow: 2px 6px 18px rgba(0, 0, 0, 0.06);
-    z-index: 9999;
-    font-family: inherit;
+    padding-top: 20px;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    z-index: 999;
   }
 
-  .mini-menu .logo {
-    width: 52px;
-    height: 52px;
-    border-radius: 10px;
-    background: #1572a1;
+  .side-menu .logo {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+
+  .side-menu a {
     color: #fff;
+    text-decoration: none;
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    width: 80%;
+    text-align: center;
+    transition: background 0.3s;
+    font-weight: 600;
+  }
+
+  .side-menu a:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .side-menu .bottom {
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: #cdddf5;
+    margin-bottom: 16px;
+  }
+
+  /* ヘッダー */
+  header.user-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 60px;
+    width: calc(100% - 120px);
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    margin-bottom: 10px;
+    justify-content: flex-end;
+    padding: 0 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e9f2;
+    z-index: 998;
   }
 
-  .mini-menu a {
+  .user-info {
+    position: relative;
+    cursor: pointer;
+    color: #0b67c2;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  .user-info:hover {
+    opacity: 0.8;
+  }
+
+  /* ドロップダウンメニュー */
+  .logout-dropdown {
+    display: none;
+    position: absolute;
+    top: 36px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e0e6ef;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 8px 0;
+    min-width: 120px;
+    text-align: right;
+    z-index: 1000;
+  }
+
+  .logout-dropdown a {
     display: block;
-    width: 64px;
-    height: 40px;
-    border-radius: 10px;
-    background: transparent;
-    border: 0;
-    margin: 6px 0;
-    text-align: center;
-    line-height: 40px;
-    color: #1572a1;
+    color: #e53935;
     text-decoration: none;
-    font-weight: 700;
+    padding: 8px 16px;
+    font-weight: 600;
   }
 
-  .mini-menu .version {
-    font-size: 0.7rem;
-    color: #6b7c8a;
-    margin-top: 8px;
+  .logout-dropdown a:hover {
+    background: #ffe6e6;
   }
 
-  @media (max-width: 640px) {
-    .mini-menu {
-      left: 8px;
-      top: 8px;
-      width: auto;
-      padding: 6px;
-      flex-direction: row;
-      gap: 6px;
-      border-radius: 10px;
-    }
+  .user-info.active .logout-dropdown {
+    display: block;
+  }
 
-    .mini-menu a {
-      width: auto;
-      height: 36px;
-      line-height: 36px;
-      padding: 0 8px;
-      font-size: 0.85rem;
-    }
+  /* メインコンテンツ用 */
+  main {
+    margin-left: 120px;
+    padding-top: 80px;
   }
 </style>
+<script>
+  // ▼ ユーザー名クリックでログアウトメニューを表示・非表示
+  document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = document.querySelector('.user-info');
+    if (userInfo) {
+      userInfo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userInfo.classList.toggle('active');
+      });
 
-<nav class="mini-menu" role="navigation" aria-label="ミニメニュー">
-  <div class="logo">SM</div>
+      document.addEventListener('click', () => {
+        userInfo.classList.remove('active');
+      });
+    }
+  });
+</script>
+</head>
+<body>
+  <!-- サイドメニュー -->
+  <nav class="side-menu" role="navigation" aria-label="サイドメニュー">
+    <div class="logo">SM</div>
 
-  <a href="${pageContext.request.contextPath}/menu"
-  	title="メニュー">Menu</a>
+    <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a>
 
-	<!-- スタッフ専用 -->
-	<c:if test="${sessionScope.isStaff}">
-	  <a href="${pageContext.request.contextPath}/productRegister"
-	   title="商品登録">Add</a>
+    <c:if test="${sessionScope.isStaff}">
+      <a href="${pageContext.request.contextPath}/productRegister" title="商品登録">Add</a>
+      <a href="${pageContext.request.contextPath}/searchProduct" title="商品検索">Search</a>
+      <a href="${pageContext.request.contextPath}/receiveStock" title="入荷処理">Recv</a>
+      <a href="${pageContext.request.contextPath}/shipStock" title="出荷処理">Ship</a>
+    </c:if>
 
-	  <a href="${pageContext.request.contextPath}/searchProduct"
-	   title="商品検索">Search</a>
+    <a href="${pageContext.request.contextPath}/selectStore" title="地図">Map</a>
+    <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
+    <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
 
-	  <a href="${pageContext.request.contextPath}/receiveStock"
-	   title="入荷処理">Recv</a>
+    <div class="bottom">v1.2</div>
+  </nav>
 
-	  <a href="${pageContext.request.contextPath}/shipStock"
-	   title="出荷処理">Ship</a>
-  	</c:if>
-
-	<!-- メニュー含め共通 -->
-    <a href="${pageContext.request.contextPath}/selectStore"
-  	  title="地図">Map</a>
-
-    <a href="${pageContext.request.contextPath}/chat"
-  	  title="チャット">Chat</a>
-
-  <a href="${pageContext.request.contextPath}/searchStore"
-  	title="店舗検索">Store</a>
-
-  <div style="flex:1"></div>
-  <div class="version">v1.0</div>
-</nav>
+  <!-- 右上ユーザー情報 -->
+  <header class="user-header">
+    <div class="user-info">
+      <c:choose>
+        <c:when test="${not empty sessionScope.username}">
+          ${sessionScope.username} さん ▼
+          <div class="logout-dropdown">
+            <a href="${pageContext.request.contextPath}/logout">ログアウト</a>
+          </div>
+        </c:when>
+        <c:otherwise>
+          ゲスト
+        </c:otherwise>
+      </c:choose>
+    </div>
+  </header>
+</body>
+</html>

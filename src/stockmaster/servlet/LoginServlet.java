@@ -26,6 +26,8 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
 
@@ -37,11 +39,17 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             System.out.println("ログイン成功: " + user.getName());
 
-            HttpSession session = req.getSession();
+            // ✅ セッション作成
+            HttpSession session = req.getSession(true);
+
+            // ✅ UserBean自体をセッションに保存（ログイン情報をまとめて持たせる）
+            session.setAttribute("loginUser", user);
+
+            // 🔹 旧仕様互換（必要なら残す）
             session.setAttribute("username", user.getName());
             session.setAttribute("isStaff", user.isStaff());
 
-            // ✅ メニューにリダイレクト
+            // ✅ メニュー画面にリダイレクト
             resp.sendRedirect(req.getContextPath() + "/menu");
 
         } else {

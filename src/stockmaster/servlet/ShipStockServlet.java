@@ -11,8 +11,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.StoreBean;
+import stockmaster.bean.UserBean;
 import stockmaster.dao.Dao;
 import stockmaster.dao.StoreDao;
 
@@ -23,6 +25,16 @@ public class ShipStockServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        // ▼ ログイン状態確認
+        HttpSession session = req.getSession(false);
+        UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
+
+        if (loginUser == null) {
+            // 未ログイン → ログイン画面にリダイレクト
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
         try {
             // 店舗リストを取得
             StoreDao storeDao = new StoreDao();
@@ -30,6 +42,7 @@ public class ShipStockServlet extends HttpServlet {
 
             // JSPに渡す
             req.setAttribute("storeList", storeList);
+            req.setAttribute("loginUser", loginUser); // ログイン中ユーザー情報を渡す
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,6 +60,16 @@ public class ShipStockServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=UTF-8");
 
+        // ▼ ログイン状態確認
+        HttpSession session = req.getSession(false);
+        UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
+
+        if (loginUser == null) {
+            // 未ログインならJSONでエラーを返す
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"ログインが必要です。\"}");
+            return;
+        }
+
         String storeIdStr = req.getParameter("storeId");
         String productId = req.getParameter("productId");
         String qtyStr = req.getParameter("quantity");
@@ -56,7 +79,7 @@ public class ShipStockServlet extends HttpServlet {
 
         if (storeIdStr == null || productId == null || qtyStr == null ||
             storeIdStr.isEmpty() || productId.isEmpty() || qtyStr.isEmpty()) {
-            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください・。\"}");
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください。\"}");
             return;
         }
 
@@ -70,7 +93,7 @@ public class ShipStockServlet extends HttpServlet {
             return;
         }
 
-        try (Connection conn = new Dao(){}.getConnection()) {
+        try (Connection conn = new Dao() {}.getConnection()) {
 
             // 在庫確認
             PreparedStatement psSelect = conn.prepareStatement(

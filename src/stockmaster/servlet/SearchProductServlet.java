@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.Item;
 import stockmaster.dao.ItemDao;
@@ -20,6 +21,18 @@ public class SearchProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        // ✅ セッション確認（ログイン状態チェック）
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("username") == null) {
+            // 未ログインならログイン画面へリダイレクト
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        // 🔹 ログイン中ユーザー確認（デバッグ用）
+        String username = (String) session.getAttribute("username");
+        System.out.println("ログイン中ユーザー: " + username);
 
         String keyword = request.getParameter("keyword");
         String productId = request.getParameter("productId");
@@ -40,6 +53,8 @@ public class SearchProductServlet extends HttpServlet {
         }
 
         request.setAttribute("results", results);
+
+        // 🔹 結果をJSPへフォワード
         request.getRequestDispatcher("/views/searchProduct.jsp").forward(request, response);
     }
 

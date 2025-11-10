@@ -16,65 +16,86 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.StoreBean;
 
 @WebServlet("/searchStore")
 public class SearchStoreServlet extends HttpServlet {
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
 
-    String name = req.getParameter("name");
-    String areaIdStr = req.getParameter("areaId");
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-    List<StoreBean> storeList = new ArrayList<>();
+        // ✅ セッション取得（ログインしてなくてもOK）
+        HttpSession session = req.getSession(false);
+        String username = null;
+        if (session != null) {
+            username = (String) session.getAttribute("username");
+        }
 
-    try {
-      Class.forName("org.h2.Driver");
-
-      try (Connection conn = DriverManager.getConnection(
-              "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
-
-        String sql;
-        PreparedStatement stmt;
-
-        if (areaIdStr != null && !areaIdStr.isEmpty()) {
-          // 地域IDが指定されていれば STORE_ID で絞り込み
-          sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES WHERE STORE_ID = ?";
-          stmt = conn.prepareStatement(sql);
-          stmt.setInt(1, Integer.parseInt(areaIdStr));
-
+        // 🔹 デバッグ表示（任意）
+        if (username != null) {
+            System.out.println("ログイン中ユーザー: " + username);
         } else {
-          // 地域IDが空なら全件表示
-          sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES";
-          stmt = conn.prepareStatement(sql);
+            System.out.println("未ログインユーザーが店舗検索にアクセス");
         }
 
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-          Time open = rs.getTime("OPEN_TIME");
-          Time close = rs.getTime("CLOSE_TIME");
+        String name = req.getParameter("name");
+        String areaIdStr = req.getParameter("areaId");
 
-          StoreBean store = new StoreBean(
-              rs.getInt("STORE_ID"),
-              rs.getString("STORE_NAME"),
-              rs.getString("STORE_ADDRESS"),
-              rs.getString("STORE_PHONE"),
-              open != null ? open.toLocalTime() : LocalTime.MIN,
-              close != null ? close.toLocalTime() : LocalTime.MAX
-          );
-          store.updateOpenNow();
-          storeList.add(store);
+        List<StoreBean> storeList = new ArrayList<>();
+
+        try {
+            Class.forName("org.h2.Driver");
+
+            try (Connection conn = DriverManager.getConnection(
+                    "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
+
+                String sql;
+                PreparedStatement stmt;
+
+                if (areaIdStr != null && !areaIdStr.isEmpty()) {
+                    // 地域IDが指定されていれば STORE_ID で絞り込み
+                    sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME "
+                        + "FROM STORES WHERE STORE_ID = ?";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, Integer.parseInt(areaIdStr));
+                } else {
+                    // 地域IDが空なら全件表示
+                    sql = "SELECT STORE_ID, STORE_NAME, STORE_ADDRESS, STORE_PHONE, OPEN_TIME, CLOSE_TIME FROM STORES";
+                    stmt = conn.prepareStatement(sql);
+                }
+
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    Time open = rs.getTime("OPEN_TIME");
+                    Time close = rs.getTime("CLOSE_TIME");
+
+                    StoreBean store = new StoreBean(
+                            rs.getInt("STORE_ID"),
+                            rs.getString("STORE_NAME"),
+                            rs.getString("STORE_ADDRESS"),
+                            rs.getString("STORE_PHONE"),
+                            open != null ? open.toLocalTime() : LocalTime.MIN,
+                            close != null ? close.toLocalTime() : LocalTime.MAX
+                    );
+                    store.updateOpenNow();
+                    storeList.add(store);
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new ServletException(e);
         }
-      }
-    } catch (ClassNotFoundException | SQLException e) {
-      throw new ServletException(e);
+
+        req.setAttribute("storeList", storeList);
+        req.setAttribute("searched", true);
+        req.setAttribute("areaId", areaIdStr); // 選択状態保持用
+
+        // 🔹 ログインしていれば名前を渡してヘッダーに表示できるように
+        req.setAttribute("username", username);
+
+        // 🔹 JSPにフォワード
+        req.getRequestDispatcher("/views/searchStore.jsp").forward(req, resp);
     }
-
-    req.setAttribute("storeList", storeList);
-    req.setAttribute("searched", true);
-    req.setAttribute("areaId", areaIdStr); // 選択状態保持用
-    req.getRequestDispatcher("/views/searchStore.jsp").forward(req, resp);
-  }
 }
