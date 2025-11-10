@@ -1,8 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%
-  String username = (String) session.getAttribute("username");
-%>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -36,21 +33,11 @@
       flex-direction:column;
     }
 
-    /* ==== ヘッダー部分 ==== */
     header{
       display:flex;
-      justify-content:space-between;
-      align-items:center;
+      justify-content:flex-end;align-items:center;
       padding:10px 16px;
-      background:#fff;
-      box-shadow:0 2px 6px rgba(0,0,0,0.08);
-      position:sticky; top:0; z-index:10;
-    }
-
-    .header-title{
-      font-weight:700;
-      font-size:1.2rem;
-      color:var(--primary);
+      background:transparent;
     }
 
     .user-area{
@@ -58,36 +45,11 @@
       color:var(--primary);
       white-space:nowrap;
       font-size:0.95rem;
-      position:relative;
-      cursor:pointer;
     }
-
-    .user-menu {
-      display:none;
-      position:absolute; right:0; top:120%;
-      background:#fff;
-      border:1px solid #ddd;
-      border-radius:10px;
-      box-shadow:0 4px 16px rgba(0,0,0,0.1);
-      min-width:160px;
-      overflow:hidden;
-      z-index:100;
-    }
-    .user-menu button {
-      width:100%;
-      padding:10px 16px;
-      border:none;
-      background:none;
-      text-align:left;
-      font-size:0.95rem;
-      cursor:pointer;
-    }
-    .user-menu button:hover { background:#f0f7ff; }
 
     main{
-      flex:1;
-      display:flex;
-      align-items:center;
+      flex:1;display:
+      flex;align-items:center;
       justify-content:center;
       padding:18px;
       margin-left:140px;
@@ -115,7 +77,7 @@
       font-weight:600;
     }
 
-    input[type=text], input[type=number], select{
+    input[type=text], input[type=number]{
       width:100%;
       padding:10px;
       margin-top:6px;
@@ -125,121 +87,157 @@
     }
 
     button{
-      margin-top:20px;
-      padding:12px 20px;
-      background:var(--btn-hover-bg);
-      color:#fff;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:1rem;
-      font-weight:700;
-      width:100%;
+      margin-top:20px;padding:12px 20px;
+      background:var(--btn-hover-bg);color:#fff;
+      border:none;border-radius:8px;cursor:pointer;
+      font-size:1rem;font-weight:700;width:100%;
     }
+
     button:hover{opacity:0.9;}
 
     #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 4px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 9999;
-    }
-    #toast.show { opacity: 1; }
+	  position: fixed;
+	  bottom: 20px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  background: #333;
+	  color: #fff;
+	  padding: 12px 24px;
+	  border-radius: 4px;
+	  opacity: 0;
+	  transition: opacity 0.3s ease;
+	  z-index: 9999;
+	}
+	#toast.show {
+	  opacity: 1;
+	}
   </style>
 </head>
 <body>
-  <!-- 左側のミニメニュー -->
+  <!-- 左側にミニメニューを常に表示 -->
   <jsp:include page="_miniMenu.jsp" />
-
   <div class="wrap">
-    <!-- ヘッダー -->
-    <header>
-      <div class="header-title">商品登録</div>
-      <div class="user-area" onclick="toggleUserMenu()">
-        <%= username != null ? username + " さん" : "ゲストさん" %>
-        <div id="userMenu" class="user-menu">
-          <c:choose>
-            <c:when test="${username == null}">
-              <form action="login" method="get"><button type="submit">ログイン</button></form>
-              <form action="register" method="get"><button type="submit">新規登録</button></form>
-            </c:when>
-            <c:otherwise>
-              <form action="logout" method="post"><button type="submit">ログアウト</button></form>
-            </c:otherwise>
-          </c:choose>
-        </div>
-      </div>
-    </header>
 
     <main>
       <div class="form-card">
-        <h2>商品登録フォーム</h2>
+        <h2>商品登録</h2>
 
         <form id="productForm" action="productRegister" method="post">
-          <label>商品番号(バーコード入力可)
-            <input type="text" name="itemId" pattern="\d{13}" maxlength="13" required autofocus>
-          </label>
+		  <label>商品番号(バーコード入力可)
+		    <input type="text" name="itemId" pattern="\d{13}" maxlength="13" required autofocus>
+		  </label>
 
-          <label>商品名
-            <input type="text" name="name" required>
-          </label>
+		  <label>商品名
+		    <input type="text" name="name" required>
+		  </label>
 
-          <label>分類
-            <input type="text" name="category" required>
-          </label>
+		  <label>分類
+		    <input type="text" name="category" required>
+		  </label>
 
-          <label>棚番号（例：A-01）
-            <input type="text" name="shelf" required>
-          </label>
+		  <label>棚番号（例：A-01）
+		    <input type="text" name="shelf" required>
+		  </label>
 
-          <label>価格
-            <input type="number" name="price" min="0" required>
-          </label>
+		  <label>価格
+		    <input type="number" name="price" min="0" required>
+		  </label>
 
-          <label>入荷数（在庫数）
-            <input type="number" name="stockNow" min="1" required>
-          </label>
+		  <label>入荷数（在庫数）
+		    <input type="number" name="stockNow" min="1" required>
+		  </label>
 
-          <label>ストック数
-            <input type="number" name="stockMin" min="0" required>
-          </label>
+		  <label>ストック数
+		    <input type="number" name="stockMin" min="0" required>
+		  </label>
 
-          <label>店舗選択
-            <select name="storeId" required>
-              <option value="">--選択--</option>
-              <c:forEach var="store" items="${storeList}">
-                <option value="${store.storeId}">${store.storeName}</option>
-              </c:forEach>
-            </select>
-          </label>
+		  <label>店舗選択
+		    <select name="storeId" required>
+		      <option value="">--選択--</option>
+		      <c:forEach var="store" items="${storeList}">
+		        <option value="${store.storeId}">${store.storeName}</option>
+		      </c:forEach>
+		    </select>
+		  </label>
 
-          <button type="submit">登録する</button>
-        </form>
-      </div>
-    </main>
+		  <button type="submit">登録する</button>
+		</form>
+	  </div>
+	</main>
 
-    <div id="toast"></div>
+	<div id="toast"></div>
+	<script>
+	document.addEventListener("DOMContentLoaded", () => {
+	  const form = document.getElementById("productForm");
+	  const itemIdInput = form.querySelector('input[name="itemId"]');
+	  const stockNowInput = form.querySelector('input[name="stockNow"]');
+	  const stockMinInput = form.querySelector('input[name="stockMin"]');
+
+	  // 入荷数が入力されたら最小在庫数を自動計算(1/3)
+	  stockNowInput.addEventListener("input", () => {
+	    const stockNow = parseInt(stockNowInput.value, 10);
+	    if (!isNaN(stockNow)) {
+	      const stockMin = Math.floor(stockNow / 3);
+	      stockMinInput.value = stockMin;
+	    } else {
+	      stockMinInput.value = "";
+	    }
+	  });
+
+	  // 商品番号入力後に商品名へフォーカス（バーコード読み取り対応）
+	  itemIdInput.addEventListener("change", () => {
+	    form.querySelector('input[name="name"]').focus();
+	  });
+
+	  // Enterキーでフォーム送信（バーコードリーダー対応）
+	  itemIdInput.addEventListener("keypress", (e) => {
+	    if (e.key === "Enter") {
+	      e.preventDefault();
+	      form.requestSubmit();
+	    }
+	  });
+
+	  // 登録処理
+	  form.addEventListener("submit", async (e) => {
+	    e.preventDefault();
+
+	    const formData = new FormData(form);
+	    const params = new URLSearchParams();
+	    for (const [key, value] of formData.entries()) {
+	      params.append(key, value.trim());
+	    }
+
+	    try {
+	      const res = await fetch("productRegister", {
+	        method: "POST",
+	        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	        body: params.toString()
+	      });
+
+	      const text = await res.text();
+	      console.log("Response:", text);
+	      const data = JSON.parse(text);
+	      showToast(data.message, data.status);
+	      if (data.status === "success") form.reset();
+	    } catch (err) {
+	      console.error(err);
+	      showToast("通信エラーが発生しました", "error");
+	    }
+	  });
+
+	  function showToast(message, status) {
+	    const toast = document.getElementById("toast");
+	    toast.textContent = message;
+
+	    if (status === "error") toast.style.backgroundColor = "#e53935";
+	    else if (status === "warning") toast.style.backgroundColor = "#fbc02d";
+	    else toast.style.backgroundColor = "#43a047";
+
+	    toast.classList.add("show");
+	    setTimeout(() => toast.classList.remove("show"), 3000);
+	  }
+	});
+	</script>
   </div>
-
-  <script>
-    function toggleUserMenu() {
-      const menu = document.getElementById("userMenu");
-      menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    }
-    document.addEventListener("click", e => {
-      if (!e.target.closest(".user-area")) {
-        document.getElementById("userMenu").style.display = "none";
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const form = document.getElementById("productForm");
-      const itemIdInput = form.querySelector('input[name="itemId"]');
-      const stockNowInput = form.querySelector('input[name="stockNow"]');
+</body>
+</html>
