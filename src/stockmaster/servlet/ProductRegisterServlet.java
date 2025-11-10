@@ -31,7 +31,7 @@ public class ProductRegisterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-        // ▼ ログイン状態確認
+        // ログイン状態確認
         HttpSession session = request.getSession(false);
         UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
 
@@ -174,7 +174,7 @@ public class ProductRegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // ▼ ログイン状態確認
+        // ログイン状態確認
         HttpSession session = request.getSession(false);
         UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
 

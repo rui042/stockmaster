@@ -86,6 +86,16 @@
       font-size:0.95rem;
     }
 
+    select {
+	  width: 100%;
+	  padding: 10px;
+	  margin-top: 6px;
+	  border: 1px solid #ccc;
+	  border-radius: 8px;
+	  font-size: 0.95rem;
+	  background-color: #fff;
+	}
+
     button{
       margin-top:20px;padding:12px 20px;
       background:var(--btn-hover-bg);color:#fff;
@@ -131,12 +141,12 @@
 		    <input type="text" name="name" required>
 		  </label>
 
-		  <label>分類
-		    <input type="text" name="category" required>
-		  </label>
-
 		  <label>棚番号（例：A-01）
 		    <input type="text" name="shelf" required>
+		  </label>
+
+		  <label>分類
+		    <input type="text" name="category" required>
 		  </label>
 
 		  <label>価格
@@ -152,12 +162,12 @@
 		  </label>
 
 		  <label>店舗選択
-		    <select name="storeId" required>
-		      <option value="">--選択--</option>
-		      <c:forEach var="store" items="${storeList}">
-		        <option value="${store.storeId}">${store.storeName}</option>
-		      </c:forEach>
-		    </select>
+			<select name="storeId" required>
+			<option value="">--選択--</option>
+			<c:forEach var="store" items="${storeList}">
+			<option value="${store.storeId}">${store.storeName}</option>
+			</c:forEach>
+			</select>
 		  </label>
 
 		  <button type="submit">登録する</button>
