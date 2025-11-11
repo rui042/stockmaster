@@ -4,7 +4,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8"/>
-  <title>チャット（擬似）</title>
+  <title>チャット</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
     :root{
@@ -111,7 +111,7 @@
 <body>
   <jsp:include page="_miniMenu.jsp" />
   <div class="page-wrap">
-    <h2>チャット（擬似）</h2>
+    <h2>チャット</h2>
     <div class="chat-wrap" role="region" aria-label="チャット">
       <div id="messages" class="messages" aria-live="polite">
         <div class="bubble you">

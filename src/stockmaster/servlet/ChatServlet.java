@@ -6,15 +6,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 @WebServlet("/chat")
 public class ChatServlet extends HttpServlet {
@@ -50,17 +47,6 @@ public class ChatServlet extends HttpServlet {
 
     String nextStepKey = findNextStepKey(currentStepKey, userInput);
     String responseMessage = findMessageByStepKey(nextStepKey);
-
- // 履歴をセッションに保存
-    HttpSession session = req.getSession();
-    @SuppressWarnings("unchecked")
-    List<String[]> history = (List<String[]>) session.getAttribute("chatHistory");
-    if (history == null) {
-      history = new ArrayList<>();
-    }
-    history.add(new String[] { "me", userInput });
-    history.add(new String[] { "you", responseMessage });
-    session.setAttribute("chatHistory", history);
 
     req.setAttribute("responseMessage", responseMessage);
     req.setAttribute("currentStepKey", nextStepKey);
