@@ -16,10 +16,16 @@ public class MenuServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-	  	// ログインしていない場合（ゲストアクセス）として username を null に設定
-	    HttpSession session = req.getSession();
-	    if (session.getAttribute("username") == null) {
-	      session.setAttribute("username", null);
+	  HttpSession session = req.getSession(true);
+
+	    // ログインせずに使用を押された場合直前のログイン認証をリセット
+	    String guestFlag = req.getParameter("guest");
+	    if ("true".equals(guestFlag)) {
+	      session.removeAttribute("loginUser");
+	      session.removeAttribute("username");
+	      session.removeAttribute("isStaff");
+	      session.removeAttribute("chatHistory");
+	      session.removeAttribute("currentStepKey");
 	    }
 
     // メニュー表示（JSPの“実ファイルパス”へ forward）

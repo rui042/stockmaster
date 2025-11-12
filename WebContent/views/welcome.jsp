@@ -100,7 +100,7 @@
 
     <!-- ログインせずに使用 -->
     <div class="footer-links">
-      <a href="${pageContext.request.contextPath}/menu" class="guest-btn">ログインせずに使用する</a>
+      <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
     </div>
   </div>
 </body>

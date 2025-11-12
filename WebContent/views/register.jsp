@@ -92,6 +92,21 @@
     .footer-links a:hover {
       text-decoration: underline;
     }
+
+    .guest-access {
+      text-align: right;
+      margin-top: 12px;
+    }
+
+    .guest-btn {
+      color: var(--muted);
+      text-decoration: underline;
+      font-size: 0.9em;
+    }
+
+    .guest-btn:hover {
+      color: #213547;
+    }
   </style>
 </head>
 <body>
@@ -123,6 +138,11 @@
     <div class="footer-links">
       <a href="views/login.jsp">ログイン画面へ戻る</a>
     </div>
+
+    <!-- 🔹 ログインせずに使用 -->
+	<div class="footer-links guest-access">
+	  <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
+	</div>
   </div>
 </body>
 </html>
