@@ -6,12 +6,17 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import stockmaster.bean.UserBean;
 
 @WebServlet("/chat")
 public class ChatServlet extends HttpServlet {
@@ -19,6 +24,19 @@ public class ChatServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+
+	  // ログインチェック
+	  HttpSession session = req.getSession(false);
+	  if (session == null || session.getAttribute("loginUser") == null) {
+	      resp.sendRedirect(req.getContextPath() + "/login");
+	      return;
+	  }
+
+	  // 履歴の取得
+	  UserBean user = (UserBean) session.getAttribute("loginUser");
+	    List<String[]> history = loadChatHistory(user.getUserId());
+	    session.setAttribute("chatHistory", history);
+
     req.getRequestDispatcher("/views/chat.jsp").forward(req, resp);
   }
 
@@ -26,13 +44,23 @@ public class ChatServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
+	// ログインチェック
+	  HttpSession session = req.getSession(false);
+	  if (session == null || session.getAttribute("loginUser") == null) {
+	      resp.sendRedirect(req.getContextPath() + "/login");
+	      return;
+	  }
+
 	// JDBCドライバのロード
-	  try {
-	      Class.forName("org.h2.Driver");
-	    } catch (ClassNotFoundException e) {
-	      System.out.println("H2ドライバのロードに失敗しました");
-	      e.printStackTrace();
-	    }
+	try {
+	    Class.forName("org.h2.Driver");
+	  } catch (ClassNotFoundException e) {
+	   System.out.println("H2ドライバのロードに失敗しました");
+	    e.printStackTrace();
+	  }
+
+	// 呼び出し
+	UserBean user = (UserBean) session.getAttribute("loginUser");
 
     String userInput = req.getParameter("message");
     String currentStepKey = req.getParameter("currentStepKey");
@@ -47,6 +75,30 @@ public class ChatServlet extends HttpServlet {
 
     String nextStepKey = findNextStepKey(currentStepKey, userInput);
     String responseMessage = findMessageByStepKey(nextStepKey);
+
+    // 履歴の保存
+    saveChatEntry(user.getUserId(), "me", userInput);
+    saveChatEntry(user.getUserId(), "you", responseMessage);
+
+    List<String[]> history = loadChatHistory(user.getUserId());
+    session.setAttribute("chatHistory", history);
+
+    String deleteFlag = req.getParameter("delete");
+    if ("true".equals(deleteFlag)) {
+        HttpSession currentSession = req.getSession(false);
+        if (currentSession == null || currentSession.getAttribute("loginUser") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        UserBean loginUser = (UserBean) currentSession.getAttribute("loginUser");
+        deleteChatHistory(loginUser.getUserId());
+
+        currentSession.setAttribute("chatHistory", new ArrayList<String[]>());
+
+        req.getRequestDispatcher("/views/chat.jsp").forward(req, resp);
+        return;
+    }
 
     req.setAttribute("responseMessage", responseMessage);
     req.setAttribute("currentStepKey", nextStepKey);
@@ -110,4 +162,50 @@ public class ChatServlet extends HttpServlet {
     }
     return message;
   }
+
+  // 履歴保存メソッド
+  private void saveChatEntry(String userId, String senderType, String message) {
+	    String sql = "INSERT INTO CHAT_HISTORY (USER_ID, SENDER_TYPE, MESSAGE) VALUES (?, ?, ?)";
+
+	    try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setString(1, userId);
+	        stmt.setString(2, senderType);
+	        stmt.setString(3, message);
+	        stmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+  // 履歴取得メソッド
+  private List<String[]> loadChatHistory(String userId) {
+	    List<String[]> history = new ArrayList<>();
+	    String sql = "SELECT SENDER_TYPE, MESSAGE FROM CHAT_HISTORY WHERE USER_ID = ? ORDER BY CREATED_AT";
+
+	    try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setString(1, userId);
+	        ResultSet rs = stmt.executeQuery();
+	        while (rs.next()) {
+	            history.add(new String[]{rs.getString("SENDER_TYPE"), rs.getString("MESSAGE")});
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return history;
+	}
+
+  // 履歴削除メソッド
+  private void deleteChatHistory(String userId) {
+	    String sql = "DELETE FROM CHAT_HISTORY WHERE USER_ID = ?";
+
+	    try (Connection conn = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "");
+	         PreparedStatement stmt = conn.prepareStatement(sql)) {
+	        stmt.setString(1, userId);
+	        stmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
 }

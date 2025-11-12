@@ -106,6 +106,20 @@
       color:#fff;
       cursor:pointer
     }
+
+    .delete-btn {
+	  background: #6b7c8a; /* mutedカラーを使用 */
+	  color: #fff;
+	  padding: 10px 14px;
+	  border-radius: 10px;
+	  border: 0;
+	  cursor: pointer;
+	  transition: background 0.3s ease;
+	}
+
+	.delete-btn:hover {
+	  background: #4e5d6a;
+	}
   </style>
 </head>
 <body>
@@ -132,7 +146,9 @@
         <input id="chatInput" name="message" class="input" type="text" placeholder="メッセージを入力してEnter" autocomplete="off"/>
         <input type="hidden" name="currentStepKey" value="${currentStepKey != null ? currentStepKey : 'START'}" />
         <button id="chatSend" class="btn" type="submit">送信</button>
+        <button name="delete" value="true" class="btn delete-btn" type="submit">履歴削除</button>
       </form>
+
     </div>
   </div>
 
