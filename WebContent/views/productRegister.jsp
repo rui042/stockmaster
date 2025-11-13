@@ -235,10 +235,30 @@
 	      });
 
 	      const text = await res.text();
-	      console.log("Response:", text);
 	      const data = JSON.parse(text);
+
+	      if (data.status === "warning") {
+	        // ⚠️ 分類不一致 → 確認ダイアログを表示
+	        if (confirm(data.message)) {
+	          params.append("forceRegister", "true");
+	          const confirmRes = await fetch("productRegister", {
+	            method: "POST",
+	            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	            body: params.toString()
+	          });
+	          const confirmText = await confirmRes.text();
+	          const confirmData = JSON.parse(confirmText);
+	          showToast(confirmData.message, confirmData.status);
+	          if (confirmData.status === "success") form.reset();
+	        } else {
+	          showToast("登録をキャンセルしました。", "warning");
+	        }
+	        return;
+	      }
+
 	      showToast(data.message, data.status);
 	      if (data.status === "success") form.reset();
+
 	    } catch (err) {
 	      console.error(err);
 	      showToast("通信エラーが発生しました", "error");
