@@ -1,4 +1,4 @@
-package stockmaster.bean;１
+package stockmaster.bean;
 
 import java.io.Serializable;
 
