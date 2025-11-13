@@ -148,18 +148,19 @@
   <nav class="side-menu" role="navigation" aria-label="サイドメニュー">
     <div class="logo">SM</div>
 
+	<!-- 共通機能 -->
     <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a>
+    <a href="${pageContext.request.contextPath}/selectStore" title="地図">Map</a>
+    <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
+    <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
 
+	<!-- スタッフ専用機能 -->
     <c:if test="${sessionScope.isStaff}">
       <a href="${pageContext.request.contextPath}/productRegister" title="商品登録">Add</a>
       <a href="${pageContext.request.contextPath}/searchProduct" title="商品検索">Search</a>
       <a href="${pageContext.request.contextPath}/receiveStock" title="入荷処理">Recv</a>
       <a href="${pageContext.request.contextPath}/shipStock" title="出荷処理">Ship</a>
     </c:if>
-
-    <a href="${pageContext.request.contextPath}/selectStore" title="地図">Map</a>
-    <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
-    <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
 
     <div class="bottom">v1.2</div>
   </nav>

@@ -216,6 +216,24 @@
 
   <main>
     <div class="menu-grid">
+    <!-- 共通メニュー -->
+      <form action="selectStore" method="get">
+        <button class="menu-card" type="submit">
+          <div class="icon">🗺️</div><div>マップ表示</div>
+        </button>
+      </form>
+
+      <form action="chat" method="get">
+        <button class="menu-card" type="submit">
+          <div class="icon">💬</div><div>チャット相談</div>
+        </button>
+      </form>
+
+      <form action="searchStore" method="get">
+        <button class="menu-card" type="submit">
+          <div class="icon">🏬</div><div>店舗検索</div>
+        </button>
+      </form>
       <!-- スタッフ専用 -->
       <c:if test="${sessionScope.isStaff}">
         <form action="productRegister" method="get">
@@ -242,25 +260,6 @@
           </button>
         </form>
       </c:if>
-
-      <!-- 共通メニュー -->
-      <form action="selectStore" method="get">
-        <button class="menu-card" type="submit">
-          <div class="icon">🗺️</div><div>マップ表示</div>
-        </button>
-      </form>
-
-      <form action="chat" method="get">
-        <button class="menu-card" type="submit">
-          <div class="icon">💬</div><div>チャット相談</div>
-        </button>
-      </form>
-
-      <form action="searchStore" method="get">
-        <button class="menu-card" type="submit">
-          <div class="icon">🏬</div><div>店舗検索</div>
-        </button>
-      </form>
     </div>
   </main>
 
