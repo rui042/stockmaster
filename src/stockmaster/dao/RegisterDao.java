@@ -84,4 +84,25 @@ public class RegisterDao extends Dao{
             return "success";
         }
     }
+
+	public String checkShelfCategory(String shelfId, int storeId, String category) throws Exception {
+	    try (Connection conn = getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(
+	             "SELECT CATEGORY FROM SHELF WHERE SHELF_ID = ? AND STORE_ID = ?")) {
+	        stmt.setString(1, shelfId);
+	        stmt.setInt(2, storeId);
+	        ResultSet rs = stmt.executeQuery();
+
+	        if (rs.next()) {
+	            String existingCategory = rs.getString("CATEGORY");
+	            if (existingCategory != null && !existingCategory.equals(category)) {
+	                return String.format(
+	                    "棚「%s」は現在「%s」分類の棚です。異なる分類「%s」で登録してよろしいですか？",
+	                    shelfId, existingCategory, category
+	                );
+	            }
+	        }
+	    }
+	    return null; // 問題なし
+	}
 }

@@ -31,6 +31,9 @@ public class ProductRegisterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
+        // 商品登録処理メソッド
+        boolean forceRegister = "true".equals(request.getParameter("forceRegister"));
+
         // ログイン状態確認
         HttpSession session = request.getSession(false);
         UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
@@ -97,11 +100,22 @@ public class ProductRegisterServlet extends HttpServlet {
         }
 
         try {
-        	RegisterDao dao = new RegisterDao();
-        	String result = dao.registerProduct(itemId, name, category, shelfId, price, stockNow, stockMin, storeId, note);
+            RegisterDao dao = new RegisterDao();
+
+            // 分類不一致チェック
+            if (!forceRegister) {
+                String conflictMessage = dao.checkShelfCategory(shelfId, storeId, category);
+                if (conflictMessage != null) {
+                    sendJson(response, "warning", conflictMessage);
+                    return;
+                }
+            }
+
+            // 実際の登録処理
+            String result = dao.registerProduct(itemId, name, category, shelfId, price, stockNow, stockMin, storeId, note);
 
             if ("success".equals(result)) {
-                sendJson(response, "success", "商品登録が完了しました");
+                sendJson(response, "success", "商品登録が完了しました。");
             } else {
                 sendJson(response, "error", result);
             }
