@@ -1,4 +1,4 @@
-package stockmaster.dao;1
+package stockmaster.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
