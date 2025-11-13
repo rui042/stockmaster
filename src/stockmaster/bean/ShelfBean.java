@@ -1,0 +1,59 @@
+package stockmaster.bean;
+
+import java.io.Serializable;
+
+public class ShelfBean implements Serializable {
+
+    private String shelfId;   // 棚ID
+    private String location;  // 位置情報
+    private int storeId;      // 店舗ID
+    private String category;  // 分類
+    private String note;      // 備考
+
+    // 座標情報（フロア図上の位置 %）
+    private Integer xPct;     // X座標（%）
+    private Integer yPct;     // Y座標（%）
+
+    public ShelfBean() {}
+
+    public ShelfBean(String shelfId, String location, int storeId, String category, String note) {
+        this.shelfId = shelfId;
+        this.location = location;
+        this.storeId = storeId;
+        this.category = category;
+        this.note = note;
+    }
+
+    public String getShelfId() { return shelfId; }
+    public void setShelfId(String shelfId) { this.shelfId = shelfId; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public int getStoreId() { return storeId; }
+    public void setStoreId(int storeId) { this.storeId = storeId; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
+
+    // EL式対応: getter/setter 名は必ず XPct / YPct の大文字始まり
+    public Integer getXPct() { return xPct; }
+    public void setXPct(Integer xPct) { this.xPct = xPct; }
+
+    public Integer getYPct() { return yPct; }
+    public void setYPct(Integer yPct) { this.yPct = yPct; }
+
+    @Override
+    public String toString() {
+        return "ShelfBean [shelfId=" + shelfId +
+               ", location=" + location +
+               ", storeId=" + storeId +
+               ", category=" + category +
+               ", note=" + note +
+               ", xPct=" + xPct +
+               ", yPct=" + yPct + "]";
+    }
+}

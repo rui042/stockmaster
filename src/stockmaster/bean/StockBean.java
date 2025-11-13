@@ -4,17 +4,22 @@ import java.io.Serializable;
 
 public class StockBean implements Serializable {
 
-    private String itemId;   // 商品ID
-    private String shelfId;  // 棚ID
-    private int storeId;     // 店舗ID
-    private int stockNow;    // 現在の在庫数
-    private int stockMin;    // 最低在庫数
+    private String itemId;    // 商品ID
+    private String itemName;  // 商品名（ITEMSテーブルから取得）
+    private String genre;     // 商品分類（ITEMSテーブルから取得）
+    private String shelfId;   // 棚ID
+    private int storeId;      // 店舗ID
+    private int stockNow;     // 現在の在庫数
+    private int stockMin;     // 最低在庫数
 
     // コンストラクタ
     public StockBean() {}
 
-    public StockBean(String itemId, String shelfId, int storeId, int stockNow, int stockMin) {
+    public StockBean(String itemId, String itemName, String genre,
+                     String shelfId, int storeId, int stockNow, int stockMin) {
         this.itemId = itemId;
+        this.itemName = itemName;
+        this.genre = genre;
         this.shelfId = shelfId;
         this.storeId = storeId;
         this.stockNow = stockNow;
@@ -27,6 +32,20 @@ public class StockBean implements Serializable {
     }
     public void setItemId(String itemId) {
         this.itemId = itemId;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public String getShelfId() {
@@ -59,8 +78,12 @@ public class StockBean implements Serializable {
 
     @Override
     public String toString() {
-        return "StockBean [itemId=" + itemId + ", shelfId=" + shelfId +
-               ", storeId=" + storeId + ", stockNow=" + stockNow +
+        return "StockBean [itemId=" + itemId +
+               ", itemName=" + itemName +
+               ", genre=" + genre +
+               ", shelfId=" + shelfId +
+               ", storeId=" + storeId +
+               ", stockNow=" + stockNow +
                ", stockMin=" + stockMin + "]";
     }
 }

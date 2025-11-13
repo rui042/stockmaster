@@ -10,85 +10,91 @@ import stockmaster.bean.StockBean;
 
 public class StockDao extends Dao {
 
-    // 🔹 全在庫一覧を取得
-    public List<StockBean> findAll() {
+    /** 店舗IDとキーワードで商品を検索し、在庫情報を返す */
+    public List<StockBean> findByStoreAndKeyword(int storeId, String keyword) {
         List<StockBean> list = new ArrayList<>();
-        String sql = "SELECT ITEM_ID, SHELF_ID, STORE_ID, STOCK_NOW, STOCK_MIN FROM STOCK";
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, ");
+        sql.append("i.ITEM_NAME ");
+        sql.append("FROM STOCK s ");
+        sql.append("JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID ");
+        sql.append("WHERE s.STORE_ID = ? ");
 
-            while (rs.next()) {
-                StockBean stock = new StockBean(
-                    rs.getString("ITEM_ID"),
-                    rs.getString("SHELF_ID"),
-                    rs.getInt("STORE_ID"),
-                    rs.getInt("STOCK_NOW"),
-                    rs.getInt("STOCK_MIN")
-                );
-                list.add(stock);
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND i.ITEM_NAME LIKE ? ");
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            int idx = 1;
+            ps.setInt(idx++, storeId);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
             }
 
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    StockBean bean = new StockBean();
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setItemId(rs.getString("ITEM_ID"));
+                    bean.setItemName(rs.getString("ITEM_NAME"));
+                    bean.setStockNow(rs.getInt("STOCK_NOW"));
+                    bean.setStockMin(rs.getInt("STOCK_MIN"));
+                    list.add(bean);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
     }
 
-    // 🔹 商品ID＋店舗IDで在庫を検索
-    public StockBean findByItemAndStore(String itemId, int storeId) {
-        StockBean stock = null;
-        String sql = "SELECT ITEM_ID, SHELF_ID, STORE_ID, STOCK_NOW, STOCK_MIN FROM STOCK WHERE ITEM_ID = ? AND STORE_ID = ?";
+    /** 店舗IDで全在庫を取得 */
+    public List<StockBean> findByStore(int storeId) {
+        List<StockBean> list = new ArrayList<>();
+        String sql = "SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, "
+                   + "i.ITEM_NAME "
+                   + "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID "
+                   + "WHERE s.STORE_ID = ?";
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            stmt.setString(1, itemId);
-            stmt.setInt(2, storeId);
+            ps.setInt(1, storeId);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    stock = new StockBean(
-                        rs.getString("ITEM_ID"),
-                        rs.getString("SHELF_ID"),
-                        rs.getInt("STORE_ID"),
-                        rs.getInt("STOCK_NOW"),
-                        rs.getInt("STOCK_MIN")
-                    );
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    StockBean bean = new StockBean();
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setItemId(rs.getString("ITEM_ID"));
+                    bean.setItemName(rs.getString("ITEM_NAME"));
+                    bean.setStockNow(rs.getInt("STOCK_NOW"));
+                    bean.setStockMin(rs.getInt("STOCK_MIN"));
+                    list.add(bean);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return stock;
+        return list;
     }
 
-    // 🔹 在庫数を加算更新（入荷処理用）
-    public boolean updateStock(int storeId, String itemId, int quantityToAdd) {
+    /** 在庫更新（入荷数を加算） */
+    public boolean updateStock(int storeId, String itemId, int quantity) {
         String sql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, storeId);
+            ps.setString(3, itemId);
 
-            stmt.setInt(1, quantityToAdd);
-            stmt.setInt(2, storeId);
-            stmt.setString(3, itemId);
-
-            int rows = stmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("[INFO] 在庫を加算更新しました: STORE_ID=" + storeId + ", ITEM_ID=" + itemId + ", +" + quantityToAdd);
-            } else {
-                System.out.println("[WARN] 該当する在庫レコードがありません: STORE_ID=" + storeId + ", ITEM_ID=" + itemId);
-            }
-
-            return rows > 0;
-
+            int updated = ps.executeUpdate();
+            return updated > 0;
         } catch (Exception e) {
-            System.err.println("[ERROR] updateStock() でエラー発生");
             e.printStackTrace();
             return false;
         }

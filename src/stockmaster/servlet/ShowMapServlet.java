@@ -1,126 +1,127 @@
 package stockmaster.servlet;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import stockmaster.bean.ShowMapBean;
+import stockmaster.bean.ShelfBean;
+import stockmaster.bean.StockBean;
+import stockmaster.dao.ShelfDao;
+import stockmaster.dao.StockDao;
 
 @WebServlet("/showMap")
 public class ShowMapServlet extends HttpServlet {
-
-    public static class Hotspot {
-        public String id;
-        public String title;
-        public double xPct;
-        public double yPct;
-        public double wPct;
-        public double hPct;
-        public String desc;
-        public Hotspot(String id, String title, double xPct, double yPct, double wPct, double hPct, String desc){
-            this.id=id; this.title=title; this.xPct=xPct; this.yPct=yPct; this.wPct=wPct; this.hPct=hPct; this.desc=desc;
-        }
-    }
+    private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Hotspot> hotspots = new ArrayList<>();
-        hotspots.add(new Hotspot("s1","倉庫A", 12.5, 18.0, 8.0, 6.0, "在庫:120"));
-        hotspots.add(new Hotspot("s2","店舗B", 40.0, 20.0, 9.0, 7.0, "営業中"));
-        hotspots.add(new Hotspot("s3","配送C", 70.0, 55.0, 10.0, 8.0, "入荷予定"));
+        String storeIdStr = request.getParameter("storeId");
+        int storeId = (storeIdStr != null && !storeIdStr.isEmpty()) ? Integer.parseInt(storeIdStr) : 0;
 
-        req.setAttribute("hotspots", hotspots);
-        req.setAttribute("floorImage", req.getContextPath() + "/resources/floorplan.png");
+        String keyword = safe(request.getParameter("keyword"));
+        String category = safe(request.getParameter("category"));
+        String selectedShelfId = safe(request.getParameter("shelfId"));
 
-     // storeId を取得（GETパラメータから）
-        String storeIdParam = req.getParameter("storeId");
-        int storeId = 0;
-        if (storeIdParam != null && !storeIdParam.isEmpty()) {
-            storeId = Integer.parseInt(storeIdParam);
-        } else {
-            // storeIdが指定されていない場合の処理（例：エラー表示やデフォルト店舗）
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "店舗IDが指定されていません");
-            return;
-        }
+        request.setAttribute("storeId", storeId);
+        request.setAttribute("keyword", keyword != null ? keyword : "");
+        request.setAttribute("category", category != null ? category : "");
+        request.setAttribute("floorImage", request.getContextPath() + "/resources/floorplan.png");
 
+        StockDao stockDao = new StockDao();
+        ShelfDao shelfDao = new ShelfDao();
 
-     // 検索キーワード取得
-        String keyword = req.getParameter("keyword");
-        String category = req.getParameter("category");
-     // 棚の商品情報を取得
-        List<ShowMapBean> itemList = new ArrayList<>();
+        boolean isInitial = (storeId == 0)
+                || ((keyword == null || keyword.isEmpty())
+                    && (category == null || category.isEmpty())
+                    && (selectedShelfId == null || selectedShelfId.isEmpty()));
 
-        try {
-            // JDBCドライバのロード（最初に一度だけ呼び出す）
-            Class.forName("org.h2.Driver");
+        List<StockBean> itemList = new ArrayList<>();
+        List<ShelfBean> shelfList = new ArrayList<>();
+        List<ShelfBean> hotspots = new ArrayList<>();
+        ShelfBean selectedShelf = null;
+        int resultCount = 0;
 
-            try (Connection conn = DriverManager.getConnection(
-                    "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
+        if (!isInitial) {
+            // 商品検索（キーワード優先）
+            if (keyword != null && !keyword.isEmpty()) {
+                itemList = stockDao.findByStoreAndKeyword(storeId, keyword);
+            } else {
+                itemList = stockDao.findByStore(storeId);
+            }
 
-                String sql;
-                PreparedStatement stmt;
+            // 棚一覧取得
+            shelfList = shelfDao.findByStore(storeId);
+            request.setAttribute("shelfList", shelfList);
 
-                if (keyword != null && !keyword.isEmpty()) {
-                    // 商品名が指定されていれば、商品名で絞り込み（カテゴリは無視）
-                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
-                          "FROM MAP_VIEW WHERE STORE_ID = ? AND ITEM_NAME LIKE ?";
-                    stmt = conn.prepareStatement(sql);
-                    stmt.setInt(1, storeId);
-                    stmt.setString(2, "%" + keyword + "%");
+            Map<String, ShelfBean> shelfMap = shelfList.stream()
+                    .filter(s -> s.getShelfId() != null)
+                    .collect(Collectors.toMap(ShelfBean::getShelfId, s -> s));
 
-                } else if (category != null && !category.isEmpty()) {
-                    // 商品名が空でカテゴリが指定されていれば、カテゴリで絞り込み
-                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
-                          "FROM MAP_VIEW WHERE STORE_ID = ? AND CATEGORY = ?";
-                    stmt = conn.prepareStatement(sql);
-                    stmt.setInt(1, storeId);
-                    stmt.setString(2, category);
+            // カテゴリ指定がある場合は棚ジャンルでフィルタ
+            if ((keyword == null || keyword.isEmpty()) && category != null && !category.isEmpty()) {
+                itemList = itemList.stream()
+                        .filter(item -> {
+                            ShelfBean shelf = shelfMap.get(item.getShelfId());
+                            return shelf != null && category.equals(shelf.getCategory());
+                        })
+                        .collect(Collectors.toList());
+            }
 
-                } else {
-                    // 両方空なら全件表示
-                    sql = "SELECT STORE_ID, SHELF_ID, CATEGORY, ITEM_NAME, PRICE, STOCK_NOW, STOCK_MIN " +
-                          "FROM MAP_VIEW WHERE STORE_ID = ?";
-                    stmt = conn.prepareStatement(sql);
-                    stmt.setInt(1, storeId);
+            // 棚指定がある場合はその棚の商品だけに絞る
+            if (selectedShelfId != null && !selectedShelfId.isEmpty()) {
+                itemList = itemList.stream()
+                        .filter(item -> selectedShelfId.equals(item.getShelfId()))
+                        .collect(Collectors.toList());
+                selectedShelf = shelfMap.get(selectedShelfId);
+            }
+
+            // ★ StockBean に棚ジャンルを埋め込む
+            for (StockBean item : itemList) {
+                ShelfBean shelf = shelfMap.get(item.getShelfId());
+                if (shelf != null) {
+                    item.setGenre(shelf.getCategory()); // ← 棚のカテゴリをセット
                 }
+            }
 
+            resultCount = (itemList != null) ? itemList.size() : 0;
+            request.setAttribute("itemList", itemList);
+            request.setAttribute("resultCount", resultCount);
 
-              ResultSet rs = stmt.executeQuery();
-              while (rs.next()) {
-                  itemList.add(new ShowMapBean(
-                          rs.getString("SHELF_ID"),
-                          rs.getString("CATEGORY"),
-                          rs.getString("ITEM_NAME"),
-                          rs.getInt("PRICE"),
-                          rs.getInt("STOCK_NOW"),
-                          rs.getInt("STOCK_MIN")
-                  ));
-              }
-          }
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new ServletException(e);
+            // 検索結果の棚だけピン表示
+            if (itemList != null && !itemList.isEmpty()) {
+                hotspots = itemList.stream()
+                        .map(item -> shelfMap.get(item.getShelfId()))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            }
+            request.setAttribute("hotspots", hotspots);
+
+            request.setAttribute("selectedShelf", selectedShelf);
+        } else {
+            request.setAttribute("itemList", null);
+            request.setAttribute("resultCount", 0);
+            request.setAttribute("shelfList", null);
+            request.setAttribute("hotspots", null);
+            request.setAttribute("selectedShelf", null);
         }
 
-        // 検索条件と結果をJSPへ渡す
-        req.setAttribute("itemList", itemList);
-        req.setAttribute("resultCount", itemList.size());
-        req.setAttribute("keyword", keyword);
-        req.setAttribute("category", category);
-        req.setAttribute("storeId", storeId);
+        RequestDispatcher rd = request.getRequestDispatcher("/views/showmap.jsp");
+        rd.forward(request, response);
+    }
 
-        req.getRequestDispatcher("/views/showmap.jsp").forward(req, resp);
+    private String safe(String s) {
+        return (s == null) ? null : s.trim();
     }
 }
