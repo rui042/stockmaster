@@ -41,10 +41,11 @@ public class RegisterDao extends Dao{
                     String existingCategory = rs.getString("CATEGORY");
                     String existingNote = rs.getString("NOTE");
 
-                    if (existingCategory != null && !existingCategory.equals(category)) {
-                        return String.format("棚番号「%s」は既に存在します。分類は「%s」で指定してください。", shelfId, existingCategory);
-                    }
+//                    if (existingCategory != null && !existingCategory.equals(category)) {
+//                        return String.format("棚番号「%s」は既に存在します。分類は「%s」で指定してください。", shelfId, existingCategory);
+//                    }
 
+                    // 既存の棚に備考がnullの場合上書き可能
                     if ((existingNote == null || existingNote.trim().isEmpty()) && note != null && !note.trim().isEmpty()) {
                         try (PreparedStatement updateNote = conn.prepareStatement("UPDATE SHELF SET NOTE = ? WHERE SHELF_ID = ? AND STORE_ID = ?")) {
                             updateNote.setString(1, note);
@@ -52,11 +53,13 @@ public class RegisterDao extends Dao{
                             updateNote.setInt(3, storeId);
                             updateNote.executeUpdate();
                         }
+                    // 既存の棚番号の備考が存在していて登録に備考を入力していた場合上書き不可
                     } else if (note != null && !note.trim().isEmpty()) {
                         return "既存の棚には備考を上書きできません。";
                     }
 
                 } else {
+                	// 棚番号が存在しない場合新規登録
                     try (PreparedStatement insertShelf = conn.prepareStatement("INSERT INTO SHELF (SHELF_ID, STORE_ID, CATEGORY, NOTE) VALUES (?, ?, ?, ?)")) {
                         insertShelf.setString(1, shelfId);
                         insertShelf.setInt(2, storeId);
