@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.UserBean;
+import stockmaster.dao.RegisterDao;
 
 @WebServlet("/productRegister")
 public class ProductRegisterServlet extends HttpServlet {
@@ -97,103 +97,18 @@ public class ProductRegisterServlet extends HttpServlet {
         }
 
         try {
-            Class.forName("org.h2.Driver");
+        	RegisterDao dao = new RegisterDao();
+        	String result = dao.registerProduct(itemId, name, category, shelfId, price, stockNow, stockMin, storeId, note);
 
-            try (Connection conn = DriverManager.getConnection(
-                    "jdbc:h2:tcp://localhost/~/stockmaster;MODE=MySQL", "sa", "")) {
-
-                conn.setAutoCommit(false);
-
-                // 商品番号の重複チェック
-                String checkItem = "SELECT COUNT(*) FROM ITEMS WHERE ITEM_ID = ?";
-                try (PreparedStatement checkStmt = conn.prepareStatement(checkItem)) {
-                    checkStmt.setString(1, itemId);
-                    ResultSet rs = checkStmt.executeQuery();
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        message = "この商品番号は既に登録されています。";
-                        sendJson(response, status, message);
-                        return;
-                    }
-                }
-
-                // 商品登録
-                String sqlItem = "INSERT INTO ITEMS (ITEM_ID, ITEM_NAME, PRICE) VALUES (?, ?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sqlItem)) {
-                    stmt.setString(1, itemId);
-                    stmt.setString(2, name);
-                    stmt.setInt(3, price);
-                    stmt.executeUpdate();
-                }
-
-                // 棚登録
-                String checkShelf = "SELECT CATEGORY, NOTE FROM SHELF WHERE SHELF_ID = ? AND STORE_ID = ?";
-                try (PreparedStatement checkStmt = conn.prepareStatement(checkShelf)) {
-                    checkStmt.setString(1, shelfId);
-                    checkStmt.setInt(2, storeId);
-                    ResultSet rs = checkStmt.executeQuery();
-                    if (rs.next()) {
-                        String existingCategory = rs.getString("CATEGORY");
-                        String existingNote = rs.getString("NOTE");
-
-                        // 分類が一致しない場合はエラー
-                        if (existingCategory != null && !existingCategory.equals(category)) {
-                        	message = String.format("棚番号「%s」は既に存在します。分類は「%s」で指定してください。", shelfId, existingCategory);
-                        	sendJson(response, "error", message);
-                            return;
-                        }
-                        // NOTEがNULLまたは空の場合UPDATEでNOTEを追加
-                        if ((existingNote == null || existingNote.trim().isEmpty()) && note != null && !note.trim().isEmpty()) {
-                            String updateNote = "UPDATE SHELF SET NOTE = ? WHERE SHELF_ID = ? AND STORE_ID = ?";
-                            try (PreparedStatement updateStmt = conn.prepareStatement(updateNote)) {
-                                updateStmt.setString(1, note);
-                                updateStmt.setString(2, shelfId);
-                                updateStmt.setInt(3, storeId);
-                                updateStmt.executeUpdate();
-                            }
-                        } else if (note != null && !note.trim().isEmpty()) {
-                            // NOTEがすでに存在している場合上書き不可
-                            sendJson(response, "error", "既存の棚には備考を上書きできません。");
-                            return;
-                        }
-                    } else {
-                        // 棚が存在しない場合は新規追加
-                        String insertShelf = "INSERT INTO SHELF (SHELF_ID, STORE_ID, CATEGORY, NOTE) VALUES (?, ?, ?, ?)";
-                        try (PreparedStatement insertStmt = conn.prepareStatement(insertShelf)) {
-                            insertStmt.setString(1, shelfId);
-                            insertStmt.setInt(2, storeId);
-                            insertStmt.setString(3, category);
-                            insertStmt.setString(4, note);
-                            insertStmt.executeUpdate();
-                        }
-                    }
-                }
-
-                // 在庫登録
-                String sqlStock = "INSERT INTO STOCK (ITEM_ID, SHELF_ID, STORE_ID, STOCK_NOW, STOCK_MIN) VALUES (?, ?, ?, ?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sqlStock)) {
-                    stmt.setString(1, itemId);
-                    stmt.setString(2, shelfId);
-                    stmt.setInt(3, storeId);
-                    stmt.setInt(4, stockNow);
-                    stmt.setInt(5, stockMin);
-                    stmt.executeUpdate();
-                }
-
-                conn.commit();
-                message = "商品登録が完了しました";
-                status = "success";
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                message = "登録に失敗しました（SQLエラー）: " + e.getMessage();
+            if ("success".equals(result)) {
+                sendJson(response, "success", "商品登録が完了しました");
+            } else {
+                sendJson(response, "error", result);
             }
-
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            message = "JDBCドライバのロードに失敗しました";
+            sendJson(response, "error", "登録に失敗しました: " + e.getMessage());
         }
-
-        sendJson(response, status, message);
     }
 
     /** JSONを返す */
