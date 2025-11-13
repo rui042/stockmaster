@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" %>1
 <%@ page import="java.util.List" %>
 <%@ page import="stockmaster.bean.ShelfBean" %>
 <%@ page import="stockmaster.bean.StockBean" %>
