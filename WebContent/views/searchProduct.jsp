@@ -58,14 +58,30 @@
         <c:when test="${not empty results}">
           <table>
             <thead>
-              <tr><th>商品ID</th><th>商品名</th><th>価格</th></tr>
+              <tr>
+                <th>商品ID</th>
+                <th>商品名</th>
+                <th>価格</th>
+                <th>現在庫</th>
+                <th>最小在庫</th>
+                <th>操作</th>
+              </tr>
             </thead>
             <tbody>
               <c:forEach var="p" items="${results}">
                 <tr>
-                  <td>${p.id}</td>
-                  <td>${p.name}</td>
+                  <td>${p.itemId}</td>
+                  <td>${p.itemName}</td>
                   <td>¥${p.price}</td>
+                  <td>${p.stockNow}</td>
+                  <td>${p.stockMin}</td>
+                  <td>
+                    <form action="" method="post">
+                      <input type="hidden" name="itemId" value="${p.itemId}" />
+                      <button type="submit" style="padding:6px 12px;background:var(--btn-hover-bg);color:#fff;
+                              border:none;border-radius:6px;font-weight:600;cursor:pointer;">更新する</button>
+                    </form>
+                  </td>
                 </tr>
               </c:forEach>
             </tbody>

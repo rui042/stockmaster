@@ -10,13 +10,13 @@ import stockmaster.bean.StockBean;
 
 public class StockDao extends Dao {
 
-    /** 店舗IDとキーワードで商品を検索し、在庫情報を返す */
+    /** 店舗IDとキーワードで商品を検索し、在庫情報＋価格を返す */
     public List<StockBean> findByStoreAndKeyword(int storeId, String keyword) {
         List<StockBean> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, ");
-        sql.append("i.ITEM_NAME ");
+        sql.append("i.ITEM_NAME, i.PRICE ");
         sql.append("FROM STOCK s ");
         sql.append("JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID ");
         sql.append("WHERE s.STORE_ID = ? ");
@@ -41,8 +41,10 @@ public class StockDao extends Dao {
                     bean.setShelfId(rs.getString("SHELF_ID"));
                     bean.setItemId(rs.getString("ITEM_ID"));
                     bean.setItemName(rs.getString("ITEM_NAME"));
+                    bean.setPrice(rs.getInt("PRICE"));
                     bean.setStockNow(rs.getInt("STOCK_NOW"));
                     bean.setStockMin(rs.getInt("STOCK_MIN"));
+                    bean.setStoreId(storeId);
                     list.add(bean);
                 }
             }
@@ -52,13 +54,45 @@ public class StockDao extends Dao {
         return list;
     }
 
-    /** 店舗IDで全在庫を取得 */
+    /** 商品IDで検索（バーコード検索） */
+    public StockBean findByItemId(int storeId, String itemId) {
+        String sql = "SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, " +
+                     "i.ITEM_NAME, i.PRICE " +
+                     "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID " +
+                     "WHERE s.STORE_ID = ? AND s.ITEM_ID = ?";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, storeId);
+            ps.setString(2, itemId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    StockBean bean = new StockBean();
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setItemId(rs.getString("ITEM_ID"));
+                    bean.setItemName(rs.getString("ITEM_NAME"));
+                    bean.setPrice(rs.getInt("PRICE"));
+                    bean.setStockNow(rs.getInt("STOCK_NOW"));
+                    bean.setStockMin(rs.getInt("STOCK_MIN"));
+                    bean.setStoreId(storeId);
+                    return bean;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /** 店舗IDで全在庫を取得（価格付き） */
     public List<StockBean> findByStore(int storeId) {
         List<StockBean> list = new ArrayList<>();
-        String sql = "SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, "
-                   + "i.ITEM_NAME "
-                   + "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID "
-                   + "WHERE s.STORE_ID = ?";
+        String sql = "SELECT s.SHELF_ID, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, " +
+                     "i.ITEM_NAME, i.PRICE " +
+                     "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID " +
+                     "WHERE s.STORE_ID = ?";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -71,8 +105,10 @@ public class StockDao extends Dao {
                     bean.setShelfId(rs.getString("SHELF_ID"));
                     bean.setItemId(rs.getString("ITEM_ID"));
                     bean.setItemName(rs.getString("ITEM_NAME"));
+                    bean.setPrice(rs.getInt("PRICE"));
                     bean.setStockNow(rs.getInt("STOCK_NOW"));
                     bean.setStockMin(rs.getInt("STOCK_MIN"));
+                    bean.setStoreId(storeId);
                     list.add(bean);
                 }
             }

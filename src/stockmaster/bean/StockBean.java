@@ -12,6 +12,9 @@ public class StockBean implements Serializable {
     private int stockNow;     // 現在の在庫数
     private int stockMin;     // 最低在庫数
 
+    // 🔽 追加：価格（ITEMSテーブルから取得）
+    private int price;
+
     // コンストラクタ
     public StockBean() {}
 
@@ -76,6 +79,14 @@ public class StockBean implements Serializable {
         this.stockMin = stockMin;
     }
 
+    // 🔽 追加：価格のGetter / Setter
+    public int getPrice() {
+        return price;
+    }
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     @Override
     public String toString() {
         return "StockBean [itemId=" + itemId +
@@ -84,6 +95,7 @@ public class StockBean implements Serializable {
                ", shelfId=" + shelfId +
                ", storeId=" + storeId +
                ", stockNow=" + stockNow +
-               ", stockMin=" + stockMin + "]";
+               ", stockMin=" + stockMin +
+               ", price=" + price + "]";
     }
 }
