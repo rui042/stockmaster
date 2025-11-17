@@ -76,12 +76,14 @@
                   <td>${p.stockNow}</td>
                   <td>${p.stockMin}</td>
                   <td>
-                    <form action="" method="post">
-                      <input type="hidden" name="itemId" value="${p.itemId}" />
-                      <button type="submit" style="padding:6px 12px;background:var(--btn-hover-bg);color:#fff;
-                              border:none;border-radius:6px;font-weight:600;cursor:pointer;">更新する</button>
-                    </form>
-                  </td>
+  						<form action="${pageContext.request.contextPath}/updateItem" method="get">
+    						<input type="hidden" name="itemId" value="${p.itemId}" />
+    						<input type="hidden" name="itemName" value="${p.itemName}" />
+    						<input type="hidden" name="price" value="${p.price}" />
+    						<button type="submit" style="padding:6px 12px;background:var(--btn-hover-bg);color:#fff;
+            				border:none;border-radius:6px;font-weight:600;cursor:pointer;">更新</button>
+  						</form>
+				   </td>
                 </tr>
               </c:forEach>
             </tbody>

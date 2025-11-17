@@ -64,6 +64,22 @@ public class ItemDao extends Dao {
         }
         return list;
     }
+    public boolean updateItem(String itemId, String itemName, int price) {
+        String sql = "UPDATE ITEMS SET ITEM_NAME = ?, PRICE = ? WHERE ITEM_ID = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, itemName);
+            ps.setInt(2, price);
+            ps.setString(3, itemId);
+
+            int updated = ps.executeUpdate();
+            return updated > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     /**
      * バーコード検索（商品ID完全一致）
