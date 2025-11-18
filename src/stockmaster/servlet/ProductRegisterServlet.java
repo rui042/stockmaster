@@ -111,8 +111,15 @@ public class ProductRegisterServlet extends HttpServlet {
                 }
             }
 
+            // 備考不一致チェック
+            String noteConflictMessage = dao.checkShelfNote(shelfId, storeId, note);
+            if (noteConflictMessage != null && !forceRegister) {
+                sendJson(response, "warning", noteConflictMessage);
+                return;
+            }
+
             // 実際の登録処理
-            String result = dao.registerProduct(itemId, name, category, shelfId, price, stockNow, stockMin, storeId, note);
+            String result = dao.registerProduct(itemId, name, category, shelfId, price, stockNow, stockMin, storeId, note, forceRegister);
 
             if ("success".equals(result)) {
                 sendJson(response, "success", "商品登録が完了しました。");
@@ -127,9 +134,13 @@ public class ProductRegisterServlet extends HttpServlet {
 
     /** JSONを返す */
     private void sendJson(HttpServletResponse response, String status, String message) throws IOException {
+        // message内の改行・ダブルクオートをエスケープ
+        String escapedMessage = message.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+
         String json = String.format(
                 "{\"status\":\"%s\",\"message\":\"%s\"}",
-                status, message.replace("\"", "'"));
+                status, escapedMessage);
+
         response.getWriter().print(json);
     }
 
@@ -174,7 +185,7 @@ public class ProductRegisterServlet extends HttpServlet {
         }
 
         request.setAttribute("storeList", storeList);
-        request.setAttribute("loginUser", loginUser); // JSPでもユーザー情報使用可
+        request.setAttribute("loginUser", loginUser);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/views/productRegister.jsp");
         dispatcher.forward(request, response);

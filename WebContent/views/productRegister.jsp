@@ -238,7 +238,7 @@
 	      const data = JSON.parse(text);
 
 	      if (data.status === "warning") {
-	        // ⚠️ 分類不一致 → 確認ダイアログを表示
+	        // 分類不一致 → 確認ダイアログを表示
 	        if (confirm(data.message)) {
 	          params.append("forceRegister", "true");
 	          const confirmRes = await fetch("productRegister", {
