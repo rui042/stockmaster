@@ -8,12 +8,17 @@ import stockmaster.bean.UserBean;
 
 public class UserDao extends Dao {
 
-    // ログイン用
+    // ログイン用（店舗情報も取得）
     public UserBean findByIdAndPassword(String userId, String password) {
         UserBean user = null;
+        String sql = "SELECT u.USER_ID, u.PASSWORD, u.NAME, u.EMAIL, u.IS_STAFF, " +
+                     "u.STORE_ID, s.STORE_NAME " +
+                     "FROM USERS u " +
+                     "LEFT JOIN STORES s ON u.STORE_ID = s.STORE_ID " +
+                     "WHERE u.USER_ID = ? AND u.PASSWORD = ?";
+
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                 "SELECT USER_ID, PASSWORD, NAME, EMAIL, IS_STAFF FROM USERS WHERE USER_ID = ? AND PASSWORD = ?")) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, userId);
             stmt.setString(2, password);
@@ -27,6 +32,13 @@ public class UserDao extends Dao {
                         rs.getString("EMAIL"),
                         rs.getBoolean("IS_STAFF")
                     );
+
+                    // 店舗情報をセット
+                    int storeId = rs.getInt("STORE_ID");
+                    if (!rs.wasNull()) {
+                        user.setStoreId(storeId);
+                        user.setStoreName(rs.getString("STORE_NAME"));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -35,17 +47,24 @@ public class UserDao extends Dao {
         return user;
     }
 
-    // 新規登録用
+    // 新規登録用（店舗IDも登録可能）
     public boolean insert(UserBean user) {
+        String sql = "INSERT INTO USERS (USER_ID, PASSWORD, NAME, EMAIL, IS_STAFF, STORE_ID) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                 "INSERT INTO USERS (USER_ID, PASSWORD, NAME, EMAIL, IS_STAFF) VALUES (?, ?, ?, ?, ?)")) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUserId());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getName());
             stmt.setString(4, user.getEmail());
             stmt.setBoolean(5, user.isStaff());
+
+            if (user.getStoreId() != null) {
+                stmt.setInt(6, user.getStoreId());
+            } else {
+                stmt.setNull(6, java.sql.Types.INTEGER);
+            }
 
             int rows = stmt.executeUpdate();
             return rows > 0;

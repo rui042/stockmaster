@@ -184,7 +184,7 @@ public class ProductRegisterServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        request.setAttribute("storeList", storeList);
+//        request.setAttribute("storeList", storeList);
         request.setAttribute("loginUser", loginUser);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/views/productRegister.jsp");

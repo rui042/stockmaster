@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -167,13 +168,9 @@
 		    <input type="number" name="stockMin" min="0" required>
 		  </label>
 
-		  <label>店舗選択 <span style="color: red;">*</span>
-			<select name="storeId" required>
-			<option value="">--選択--</option>
-			<c:forEach var="store" items="${storeList}">
-			<option value="${store.storeId}">${store.storeName}</option>
-			</c:forEach>
-			</select>
+		  <label>店舗 <span style="color: red;">*</span>
+		    <input type="hidden" name="storeId" value="${loginUser.storeId}" />
+		    <input type="text" value="${loginUser.storeName}" readonly />
 		  </label>
 
 		  <label>備考
