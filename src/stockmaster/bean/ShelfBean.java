@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class ShelfBean implements Serializable {
 
+    private int shelfSeq;     // 棚順序（DBのSHELF_SEQに対応）
     private String shelfId;   // 棚ID
     private String location;  // 位置情報
     private int storeId;      // 店舗ID
@@ -16,6 +17,17 @@ public class ShelfBean implements Serializable {
 
     public ShelfBean() {}
 
+    public ShelfBean(int shelfSeq, String shelfId, String location, int storeId, String category, String note, Integer xPct, Integer yPct) {
+        this.shelfSeq = shelfSeq;
+        this.shelfId = shelfId;
+        this.location = location;
+        this.storeId = storeId;
+        this.category = category;
+        this.note = note;
+        this.xPct = xPct;
+        this.yPct = yPct;
+    }
+
     public ShelfBean(String shelfId, String location, int storeId, String category, String note) {
         this.shelfId = shelfId;
         this.location = location;
@@ -23,6 +35,9 @@ public class ShelfBean implements Serializable {
         this.category = category;
         this.note = note;
     }
+
+    public int getShelfSeq() { return shelfSeq; }
+    public void setShelfSeq(int shelfSeq) { this.shelfSeq = shelfSeq; }
 
     public String getShelfId() { return shelfId; }
     public void setShelfId(String shelfId) { this.shelfId = shelfId; }
@@ -48,7 +63,8 @@ public class ShelfBean implements Serializable {
 
     @Override
     public String toString() {
-        return "ShelfBean [shelfId=" + shelfId +
+        return "ShelfBean [shelfSeq=" + shelfSeq +
+               ", shelfId=" + shelfId +
                ", location=" + location +
                ", storeId=" + storeId +
                ", category=" + category +

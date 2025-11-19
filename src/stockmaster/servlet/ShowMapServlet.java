@@ -32,7 +32,8 @@ public class ShowMapServlet extends HttpServlet {
 
         String keyword = safe(request.getParameter("keyword"));
         String category = safe(request.getParameter("category"));
-        String selectedShelfId = safe(request.getParameter("shelfId"));
+        String selectedShelfSeqStr = safe(request.getParameter("shelfSeq"));
+        int selectedShelfSeq = (selectedShelfSeqStr != null && !selectedShelfSeqStr.isEmpty()) ? Integer.parseInt(selectedShelfSeqStr) : -1;
 
         request.setAttribute("storeId", storeId);
         request.setAttribute("keyword", keyword != null ? keyword : "");
@@ -45,7 +46,7 @@ public class ShowMapServlet extends HttpServlet {
         boolean isInitial = (storeId == 0)
                 || ((keyword == null || keyword.isEmpty())
                     && (category == null || category.isEmpty())
-                    && (selectedShelfId == null || selectedShelfId.isEmpty()));
+                    && selectedShelfSeq == -1);
 
         List<StockBean> itemList = new ArrayList<>();
         List<ShelfBean> shelfList = new ArrayList<>();
@@ -61,53 +62,52 @@ public class ShowMapServlet extends HttpServlet {
                 itemList = stockDao.findByStore(storeId);
             }
 
-            // 棚一覧取得
-            shelfList = shelfDao.findByStore(storeId);
+            // 棚一覧取得（SEQ順に並べ替え）
+            shelfList = shelfDao.findByStore(storeId).stream()
+                .sorted((a, b) -> Integer.compare(a.getShelfSeq(), b.getShelfSeq()))
+                .collect(Collectors.toList());
             request.setAttribute("shelfList", shelfList);
 
-            Map<String, ShelfBean> shelfMap = shelfList.stream()
-                    .filter(s -> s.getShelfId() != null)
-                    .collect(Collectors.toMap(ShelfBean::getShelfId, s -> s));
+            // 🔄 shelfMap を shelfSeq ベースに変更
+            Map<Integer, ShelfBean> shelfMap = shelfList.stream()
+                    .collect(Collectors.toMap(ShelfBean::getShelfSeq, s -> s));
 
             // カテゴリ指定がある場合は棚ジャンルでフィルタ
             if ((keyword == null || keyword.isEmpty()) && category != null && !category.isEmpty()) {
                 itemList = itemList.stream()
                         .filter(item -> {
-                            ShelfBean shelf = shelfMap.get(item.getShelfId());
+                            ShelfBean shelf = shelfMap.get(item.getShelfSeq());
                             return shelf != null && category.equals(shelf.getCategory());
                         })
                         .collect(Collectors.toList());
             }
 
-            // 棚指定がある場合はその棚の商品だけに絞る
-            if (selectedShelfId != null && !selectedShelfId.isEmpty()) {
+            // SHELF_SEQ指定がある場合はその棚の商品だけに絞る
+            if (selectedShelfSeq != -1) {
+                selectedShelf = shelfMap.get(selectedShelfSeq);
                 itemList = itemList.stream()
-                        .filter(item -> selectedShelfId.equals(item.getShelfId()))
+                        .filter(item -> item.getShelfSeq() == selectedShelfSeq)
                         .collect(Collectors.toList());
-                selectedShelf = shelfMap.get(selectedShelfId);
             }
 
             // ★ StockBean に棚ジャンルを埋め込む
             for (StockBean item : itemList) {
-                ShelfBean shelf = shelfMap.get(item.getShelfId());
+                ShelfBean shelf = shelfMap.get(item.getShelfSeq());
                 if (shelf != null) {
                     item.setGenre(shelf.getCategory()); // ← 棚のカテゴリをセット
                 }
             }
 
-            resultCount = (itemList != null) ? itemList.size() : 0;
+            resultCount = itemList.size();
             request.setAttribute("itemList", itemList);
             request.setAttribute("resultCount", resultCount);
 
             // 検索結果の棚だけピン表示
-            if (itemList != null && !itemList.isEmpty()) {
-                hotspots = itemList.stream()
-                        .map(item -> shelfMap.get(item.getShelfId()))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-            }
+            hotspots = itemList.stream()
+                    .map(item -> shelfMap.get(item.getShelfSeq()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             request.setAttribute("hotspots", hotspots);
-
             request.setAttribute("selectedShelf", selectedShelf);
         } else {
             request.setAttribute("itemList", null);

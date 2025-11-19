@@ -13,7 +13,7 @@ public class ShelfDao extends Dao {
     // 🔹 棚テーブルの全件取得
     public List<ShelfBean> findAll() {
         List<ShelfBean> list = new ArrayList<>();
-        String sql = "SELECT SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF";
+        String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -27,7 +27,7 @@ public class ShelfDao extends Dao {
                     rs.getString("CATEGORY"),
                     rs.getString("NOTE")
                 );
-                // 🔹 座標をセット
+                shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
                 shelf.setXPct(rs.getInt("X_PCT"));
                 shelf.setYPct(rs.getInt("Y_PCT"));
 
@@ -44,7 +44,7 @@ public class ShelfDao extends Dao {
     // 🔹 店舗IDで棚を検索
     public List<ShelfBean> findByStore(int storeId) {
         List<ShelfBean> list = new ArrayList<>();
-        String sql = "SELECT SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE STORE_ID = ?";
+        String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE STORE_ID = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -60,7 +60,7 @@ public class ShelfDao extends Dao {
                         rs.getString("CATEGORY"),
                         rs.getString("NOTE")
                     );
-                    // 🔹 座標をセット
+                    shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
                     shelf.setXPct(rs.getInt("X_PCT"));
                     shelf.setYPct(rs.getInt("Y_PCT"));
 
@@ -78,7 +78,7 @@ public class ShelfDao extends Dao {
     // 🔹 棚IDで1件取得（検索結果から棚座標を使う場合に便利）
     public ShelfBean findById(String shelfId) {
         ShelfBean shelf = null;
-        String sql = "SELECT SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE SHELF_ID = ?";
+        String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE SHELF_ID = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -94,6 +94,7 @@ public class ShelfDao extends Dao {
                         rs.getString("CATEGORY"),
                         rs.getString("NOTE")
                     );
+                    shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
                     shelf.setXPct(rs.getInt("X_PCT"));
                     shelf.setYPct(rs.getInt("Y_PCT"));
                 }

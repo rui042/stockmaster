@@ -4,26 +4,24 @@ import java.io.Serializable;
 
 public class StockBean implements Serializable {
 
-    private String itemId;    // 商品ID
-    private String itemName;  // 商品名（ITEMSテーブルから取得）
-    private String genre;     // 商品分類（ITEMSテーブルから取得）
-    private String shelfId;   // 棚ID
-    private int storeId;      // 店舗ID
-    private int stockNow;     // 現在の在庫数
-    private int stockMin;     // 最低在庫数
-
-    // 🔽 追加：価格（ITEMSテーブルから取得）
-    private int price;
+    private String itemId;     // 商品ID
+    private String itemName;   // 商品名（ITEMSテーブルから取得）
+    private String genre;      // 商品分類（ITEMSテーブルから取得）
+    private int shelfSeq;      // 棚順序（SHELFテーブルの主キー）
+    private int storeId;       // 店舗ID
+    private int stockNow;      // 現在の在庫数
+    private int stockMin;      // 最低在庫数
+    private int price;         // 価格（ITEMSテーブルから取得）
 
     // コンストラクタ
     public StockBean() {}
 
     public StockBean(String itemId, String itemName, String genre,
-                     String shelfId, int storeId, int stockNow, int stockMin) {
+                     int shelfSeq, int storeId, int stockNow, int stockMin) {
         this.itemId = itemId;
         this.itemName = itemName;
         this.genre = genre;
-        this.shelfId = shelfId;
+        this.shelfSeq = shelfSeq;
         this.storeId = storeId;
         this.stockNow = stockNow;
         this.stockMin = stockMin;
@@ -51,11 +49,11 @@ public class StockBean implements Serializable {
         this.genre = genre;
     }
 
-    public String getShelfId() {
-        return shelfId;
+    public int getShelfSeq() {
+        return shelfSeq;
     }
-    public void setShelfId(String shelfId) {
-        this.shelfId = shelfId;
+    public void setShelfSeq(int shelfSeq) {
+        this.shelfSeq = shelfSeq;
     }
 
     public int getStoreId() {
@@ -79,7 +77,6 @@ public class StockBean implements Serializable {
         this.stockMin = stockMin;
     }
 
-    // 🔽 追加：価格のGetter / Setter
     public int getPrice() {
         return price;
     }
@@ -92,7 +89,7 @@ public class StockBean implements Serializable {
         return "StockBean [itemId=" + itemId +
                ", itemName=" + itemName +
                ", genre=" + genre +
-               ", shelfId=" + shelfId +
+               ", shelfSeq=" + shelfSeq +
                ", storeId=" + storeId +
                ", stockNow=" + stockNow +
                ", stockMin=" + stockMin +
