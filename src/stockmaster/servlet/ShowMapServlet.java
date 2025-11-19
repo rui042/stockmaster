@@ -33,7 +33,8 @@ public class ShowMapServlet extends HttpServlet {
         String keyword = safe(request.getParameter("keyword"));
         String category = safe(request.getParameter("category"));
         String selectedShelfSeqStr = safe(request.getParameter("shelfSeq"));
-        int selectedShelfSeq = (selectedShelfSeqStr != null && !selectedShelfSeqStr.isEmpty()) ? Integer.parseInt(selectedShelfSeqStr) : -1;
+        int selectedShelfSeq = (selectedShelfSeqStr != null && !selectedShelfSeqStr.isEmpty())
+                ? Integer.parseInt(selectedShelfSeqStr) : -1;
 
         request.setAttribute("storeId", storeId);
         request.setAttribute("keyword", keyword != null ? keyword : "");
@@ -68,7 +69,7 @@ public class ShowMapServlet extends HttpServlet {
                 .collect(Collectors.toList());
             request.setAttribute("shelfList", shelfList);
 
-            // 🔄 shelfMap を shelfSeq ベースに変更
+            // shelfMap を shelfSeq ベースに変更
             Map<Integer, ShelfBean> shelfMap = shelfList.stream()
                     .collect(Collectors.toMap(ShelfBean::getShelfSeq, s -> s));
 
@@ -90,11 +91,12 @@ public class ShowMapServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // ★ StockBean に棚ジャンルを埋め込む
+            // ★ StockBean に棚情報を埋め込む
             for (StockBean item : itemList) {
                 ShelfBean shelf = shelfMap.get(item.getShelfSeq());
                 if (shelf != null) {
-                    item.setGenre(shelf.getCategory()); // ← 棚のカテゴリをセット
+                    item.setGenre(shelf.getCategory());   // 棚のカテゴリをセット
+                    item.setShelfId(shelf.getShelfId()); // 表示用棚番号をセット
                 }
             }
 

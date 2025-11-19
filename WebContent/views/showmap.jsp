@@ -1,7 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="stockmaster.bean.ShelfBean" %>
-<%@ page import="stockmaster.bean.StockBean" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ja">
@@ -11,43 +8,39 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
     :root{--muted:#6b7c8a;--accent:#1572a1}
-    body{margin:0;font-family:"Yu Gothic","Segoe UI",system-ui,-apple-system,sans-serif;background:transparent;color:#213547}
+    body{margin:0;font-family:"Yu Gothic","Segoe UI",system-ui,-apple-system,sans-serif;color:#213547}
     .page-wrap{max-width:1100px;margin:40px auto;padding:16px;margin-left:140px;position:relative;}
     @media (max-width:640px){.page-wrap{margin-left:16px;margin-top:88px}}
     h2{margin:0 0 8px}
     .note{color:var(--muted);margin-bottom:10px}
     .img-box{border-radius:8px;border:1px solid #e6eef6;overflow:hidden;background:#fff;text-align:center;position:relative;}
     .floor{display:block;max-width:80%;height:auto;margin:0 auto;}
-    .pin {position:absolute;transform:translate(-50%, -100%);background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;cursor:pointer;transition:transform 0.2s ease; z-index:1;}
-    .pin.red { background:red; z-index:10; }
-    .pin:hover {transform:translate(-50%, -100%) scale(1.2);background:#0e4e74;}
-    .pin-label {position:absolute;background:rgba(255,255,255,0.95);border:1px solid #ccc;border-radius:6px;padding:4px 8px;font-size:0.9rem;display:none;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
-    .pin:hover + .pin-label {display:block;}
+    .pin{position:absolute;transform:translate(-50%,-100%);background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:12px;cursor:pointer;transition:transform 0.2s ease;z-index:1;}
+    .pin.red{background:red;z-index:10;}
+    .pin:hover{transform:translate(-50%,-100%) scale(1.2);background:#0e4e74;}
+    .pin-label{position:absolute;background:rgba(255,255,255,0.95);border:1px solid #ccc;border-radius:6px;padding:4px 8px;font-size:0.9rem;display:none;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
+    .pin:hover + .pin-label{display:block;}
     .shelf-info{margin-top:24px;border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
-    .shelf-info th, .shelf-info td{padding:12px 16px;border-bottom:1px solid #e6eef6;text-align:left;}
+    .shelf-info th,.shelf-info td{padding:12px 16px;border-bottom:1px solid #e6eef6;text-align:left;}
     .shelf-info th{background:#f8fafc;color:#1572a1;font-weight:bold;}
     .shelf-info tr:last-child td{border-bottom:none;}
     .search-bar{position:absolute;top:0;right:0;margin:16px;}
     .search-bar form{display:flex;gap:6px;align-items:center;}
-    .search-bar input[type=text]{padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;}
-    .search-bar select{padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;}
+    .search-bar input[type=text],.search-bar select{padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;}
     .search-bar button{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;}
     .search-bar button:hover{opacity:0.9;}
-    .highlight { color: green; font-weight: bold; }
-    .out-of-stock { color: red; font-weight: bold; }
-    .low-stock { color: orange; font-weight: bold; }
-    .search-note {margin-top: 8px;font-size: 0.9em;color: #666;}
-    .shelf-link { color:#1572a1; text-decoration:underline; cursor:pointer; }
+    .highlight{color:green;font-weight:bold;}
+    .out-of-stock{color:red;font-weight:bold;}
+    .low-stock{color:orange;font-weight:bold;}
+    .search-note{margin-top:8px;font-size:0.9em;color:#666;}
+    .shelf-link{color:#1572a1;text-decoration:underline;cursor:pointer;}
   </style>
 </head>
 <body>
-
   <jsp:include page="/views/_miniMenu.jsp" />
-
   <div class="page-wrap">
-    <!-- 検索フォーム -->
     <div class="search-bar">
-      <form id="searchForm" action="${pageContext.request.contextPath}/showMap" method="get">
+      <form action="${pageContext.request.contextPath}/showMap" method="get">
         <input type="hidden" name="storeId" value="${storeId}">
         <input type="text" name="keyword" placeholder="商品検索" value="${keyword}">
         <select name="category">
@@ -65,24 +58,19 @@
     <p class="note">ピンをクリックすると棚情報を確認できます。</p>
 
     <div class="img-box">
-      <img id="floorImg" class="floor" src="${floorImage}" alt="floor plan"/>
-
-      <!-- 青ピン（検索結果の棚だけ） -->
+      <img class="floor" src="${floorImage}" alt="floor plan"/>
       <c:forEach var="spot" items="${hotspots}">
         <c:if test="${spot.XPct != null && spot.YPct != null}">
-          <div class="pin" style="left:${spot.XPct}%; top:${spot.YPct}%;" aria-label="棚 ${spot.shelfId} (${spot.category})">📍</div>
+          <div class="pin" style="left:${spot.XPct}%; top:${spot.YPct}%;">📍</div>
           <div class="pin-label" style="left:${spot.XPct}%; top:${spot.YPct - 3}%;">棚 ${spot.shelfId} (${spot.category})</div>
         </c:if>
       </c:forEach>
-
-      <!-- 赤ピン（選択棚） -->
       <c:if test="${selectedShelf != null}">
-        <div class="pin red" style="left:${selectedShelf.XPct}%; top:${selectedShelf.YPct}%;" aria-label="棚 ${selectedShelf.shelfId} (${selectedShelf.category})">📍</div>
+        <div class="pin red" style="left:${selectedShelf.XPct}%; top:${selectedShelf.YPct}%;">📍</div>
         <div class="pin-label" style="left:${selectedShelf.XPct}%; top:${selectedShelf.YPct - 3}%;">棚 ${selectedShelf.shelfId} (${selectedShelf.category})</div>
       </c:if>
     </div>
 
-    <!-- 商品情報テーブル -->
     <h2 style="margin-top:32px;">棚の商品情報</h2>
     <c:choose>
       <c:when test="${not empty itemList}">
@@ -90,11 +78,7 @@
         <table class="shelf-info">
           <thead>
             <tr>
-              <th>棚番号</th>
-              <th>分類</th>
-              <th>商品名</th>
-              <th>在庫</th>
-              <th>操作</th>
+              <th>棚番号</th><th>分類</th><th>商品名</th><th>在庫</th><th>操作</th>
             </tr>
           </thead>
           <tbody>
@@ -105,24 +89,15 @@
                 <td>${item.itemName}</td>
                 <td>
                   <c:choose>
-                    <c:when test="${item.stockNow > item.stockMin}">
-                      <span class="highlight">〇</span>
-                    </c:when>
-                    <c:when test="${item.stockNow == 0}">
-                      <span class="out-of-stock">×</span>
-                    </c:when>
-                    <c:otherwise>
-                      <span class="low-stock">△</span>
-                    </c:otherwise>
+                    <c:when test="${item.stockNow > item.stockMin}"><span class="highlight">〇</span></c:when>
+                    <c:when test="${item.stockNow == 0}"><span class="out-of-stock">×</span></c:when>
+                    <c:otherwise><span class="low-stock">△</span></c:otherwise>
                   </c:choose>
                 </td>
                 <td>
-                  <a class="shelf-link"
-                     href="${pageContext.request.contextPath}/showMap?storeId=${storeId}&shelfId=${item.shelfId}">
-                    この棚を表示
-                  </a>
+                  <a class="shelf-link" href="${pageContext.request.contextPath}/showMap?storeId=${storeId}&shelfSeq=${item.shelfSeq}">この棚を表示</a>
                 </td>
-                            </tr>
+              </tr>
             </c:forEach>
           </tbody>
         </table>
