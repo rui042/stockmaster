@@ -168,7 +168,7 @@
 		    <input type="number" name="stockMin" min="0" required>
 		  </label>
 
-		  <label>店舗 <span style="color: red;">*</span>
+		  <label>店舗(ログインユーザーに固定されます) <span style="color: red;">*</span>
 		    <input type="hidden" name="storeId" value="${loginUser.storeId}" />
 		    <input type="text" value="${loginUser.storeName}" readonly />
 		  </label>
