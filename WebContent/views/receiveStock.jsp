@@ -96,27 +96,11 @@
     <form id="receiveForm">
 
       <!-- 店舗選択 -->
-      <label>店舗を選択
-        <select id="storeId" name="storeId" required>
-          <option value="">-- 店舗を選択してください --</option>
-          <%
-            try {
-              StoreDao dao = new StoreDao();
-              List<StoreBean> stores = dao.findAll();
-              for (StoreBean s : stores) {
-          %>
-                <option value="<%= s.getStoreId() %>"><%= s.getStoreName() %></option>
-          <%
-              }
-            } catch (Exception e) {
-              e.printStackTrace();
-          %>
-              <option value="">店舗情報の取得に失敗しました</option>
-          <%
-            }
-          %>
-        </select>
-      </label>
+      <label>
+	    店舗 (ログインユーザーに固定されます)
+	    <input type="hidden" id="storeId" name="storeId" value="${loginUser.storeId}" />
+	    <input type="text" value="${loginUser.storeName}" readonly />
+	  </label>
 
       <!-- 商品ID -->
       <label>商品ID（バーコード入力可）

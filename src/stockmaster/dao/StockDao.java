@@ -140,10 +140,9 @@ public class StockDao extends Dao {
     public boolean receiveStock(int storeId, String itemId, int quantity) {
         boolean result = false;
         String updateStockSql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
-        // H2対応: MERGE INTO 構文を使用
         String upsertStatusSql = "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT) " +
-                                 "KEY (ITEM_ID, STORE_ID) " +
-                                 "VALUES (?, ?, 'RECEIVE', ?, CURRENT_TIMESTAMP)";
+                				   "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) " +
+                				   "VALUES (?, ?, 'RECEIVE', ?, CURRENT_TIMESTAMP)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false); // トランザクション開始

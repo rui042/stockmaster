@@ -128,31 +128,20 @@
     <form id="shipForm">
 
       <!-- 店舗選択 -->
-      <label>店舗を選択
-        <select id="storeId" name="storeId" required>
-          <option value="">選択してください</option>
-          <%
-            List<StoreBean> stores = (List<StoreBean>) request.getAttribute("storeList");
-            if (stores != null) {
-              for (StoreBean s : stores) {
-          %>
-                <option value="<%= s.getStoreId() %>"><%= s.getStoreName() %></option>
-          <%
-              }
-            }
-          %>
-        </select>
+      <label>店舗 (ログインユーザーに固定されます)
+        <input type="hidden" id="storeId" name="storeId" value="${loginUser.storeId}" />
+        <input type="text" value="${loginUser.storeName}" readonly />
       </label>
 
       <!-- 商品ID（バーコード入力のみ） -->
       <label>商品バーコード
-        <input type="text" id="productId" name="productId" placeholder="バーコードをスキャン" readonly required>
+        <input type="text" id="productId" name="productId" placeholder="バーコードをスキャン" required>
         <div class="note">※バーコードリーダー専用（手入力不可）</div>
       </label>
 
       <!-- 出荷数（テンキー入力） -->
       <label>出荷数
-        <input type="text" id="quantity" name="quantity" readonly required>
+        <input type="text" id="quantity" name="quantity" required>
       </label>
 
       <!-- テンキー -->

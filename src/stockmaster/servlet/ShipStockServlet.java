@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,10 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import stockmaster.bean.StoreBean;
 import stockmaster.bean.UserBean;
 import stockmaster.dao.Dao;
-import stockmaster.dao.StoreDao;
 
 @WebServlet("/shipStock")
 public class ShipStockServlet extends HttpServlet {
@@ -35,20 +32,7 @@ public class ShipStockServlet extends HttpServlet {
             return;
         }
 
-        try {
-            // 店舗リストを取得
-            StoreDao storeDao = new StoreDao();
-            List<StoreBean> storeList = storeDao.findAll();
-
-            // JSPに渡す
-            req.setAttribute("storeList", storeList);
-            req.setAttribute("loginUser", loginUser); // ログイン中ユーザー情報を渡す
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            req.setAttribute("error", "店舗情報の取得に失敗しました。");
-        }
-
+        req.setAttribute("loginUser", loginUser); // ログイン中ユーザー情報を渡す
         // shipStock.jsp にフォワード
         req.getRequestDispatcher("/views/shipStock.jsp").forward(req, resp);
     }
@@ -70,30 +54,33 @@ public class ShipStockServlet extends HttpServlet {
             return;
         }
 
-        String storeIdStr = req.getParameter("storeId");
+        // 店舗IDはセッションから固定
+        int storeId = loginUser.getStoreId();
         String productId = req.getParameter("productId");
         String qtyStr = req.getParameter("quantity");
 
         String message;
         String status = "error";
 
-        if (storeIdStr == null || productId == null || qtyStr == null ||
-            storeIdStr.isEmpty() || productId.isEmpty() || qtyStr.isEmpty()) {
-            resp.getWriter().write("{\"status\":\"error\",\"message\":\"全ての項目を入力してください。\"}");
+        if (productId == null || productId.isEmpty() || qtyStr == null || qtyStr.isEmpty()) {
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"商品IDと数量を入力してください。\"}");
             return;
         }
 
-        int storeId;
         int quantity;
         try {
-            storeId = Integer.parseInt(storeIdStr);
             quantity = Integer.parseInt(qtyStr);
+            if (quantity <= 0) {
+                resp.getWriter().write("{\"status\":\"error\",\"message\":\"数量は1以上の整数を指定してください。\"}");
+                return;
+            }
         } catch (NumberFormatException e) {
-            resp.getWriter().write("{\"status\":\"error\",\"message\":\"入力値が不正です。\"}");
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"数量は数値で指定してください。\"}");
             return;
         }
 
         try (Connection conn = new Dao() {}.getConnection()) {
+        	conn.setAutoCommit(false); // トランザクション開始
 
             // 在庫確認
             PreparedStatement psSelect = conn.prepareStatement(
@@ -109,7 +96,7 @@ public class ShipStockServlet extends HttpServlet {
                 if (current >= quantity) {
                     int updated = current - quantity;
 
-                    // 即時在庫更新
+                    // 在庫更新
                     PreparedStatement psUpdate = conn.prepareStatement(
                         "UPDATE STOCK SET STOCK_NOW = ? WHERE ITEM_ID = ? AND STORE_ID = ?"
                     );
@@ -117,6 +104,19 @@ public class ShipStockServlet extends HttpServlet {
                     psUpdate.setString(2, productId);
                     psUpdate.setInt(3, storeId);
                     psUpdate.executeUpdate();
+
+                    // 最新状態をSTOCK_STATUSに記録
+                    PreparedStatement psStatus = conn.prepareStatement(
+                            "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT) " +
+                            "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) " +
+                            "VALUES (?, ?, 'SHIP', ?, CURRENT_TIMESTAMP)"
+                    );
+                    psStatus.setString(1, productId);
+                    psStatus.setInt(2, storeId);
+                    psStatus.setInt(3, quantity);
+                    psStatus.executeUpdate();
+
+                    conn.commit();
 
                     message = "商品ID " + productId + " の在庫を " + current + " → " + updated + " に更新しました。";
                     status = "success";
