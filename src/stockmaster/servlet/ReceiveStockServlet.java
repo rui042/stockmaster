@@ -73,7 +73,7 @@ public class ReceiveStockServlet extends HttpServlet {
         // ビジネス処理
         try {
             StockDao dao = new StockDao();
-            boolean updated = dao.updateStock(storeId, productId.trim(), quantity);
+            boolean updated = dao.receiveStock(storeId, productId.trim(), quantity);
 
             if (updated) {
                 json = "{\"status\":\"success\",\"message\":\"在庫を更新しました。\"}";

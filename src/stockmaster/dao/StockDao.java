@@ -135,4 +135,45 @@ public class StockDao extends Dao {
             return false;
         }
     }
+
+    /** 入荷処理（在庫更新＋最新状態をSTOCK_STATUSに記録） */
+    public boolean receiveStock(int storeId, String itemId, int quantity) {
+        boolean result = false;
+        String updateStockSql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
+        // H2対応: MERGE INTO 構文を使用
+        String upsertStatusSql = "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT) " +
+                                 "KEY (ITEM_ID, STORE_ID) " +
+                                 "VALUES (?, ?, 'RECEIVE', ?, CURRENT_TIMESTAMP)";
+
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false); // トランザクション開始
+
+            // 在庫数を加算
+            try (PreparedStatement ps = con.prepareStatement(updateStockSql)) {
+                ps.setInt(1, quantity);
+                ps.setInt(2, storeId);
+                ps.setString(3, itemId);
+                int updated = ps.executeUpdate();
+                if (updated == 0) {
+                    con.rollback();
+                    return false;
+                }
+            }
+
+         // 最新状態をSTOCK_STATUSに記録（MERGEでINSERT or UPDATE）
+            try (PreparedStatement ps = con.prepareStatement(upsertStatusSql)) {
+                ps.setString(1, itemId);
+                ps.setInt(2, storeId);
+                ps.setInt(3, quantity);
+                ps.executeUpdate();
+            }
+
+            con.commit();
+            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = false;
+        }
+        return result;
+    }
 }
