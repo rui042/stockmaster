@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import stockmaster.bean.HistoryBean;
 import stockmaster.bean.StockBean;
 
 public class StockDao extends Dao {
 
+	// 商品表示一覧
     /** 店舗IDとキーワードで商品を検索し、在庫情報＋価格を返す */
     public List<StockBean> findByStoreAndKeyword(int storeId, String keyword) {
         List<StockBean> list = new ArrayList<>();
@@ -118,6 +120,8 @@ public class StockDao extends Dao {
         return list;
     }
 
+
+    // 入荷処理
     /** 在庫更新（入荷数を加算） */
     public boolean updateStock(int storeId, String itemId, int quantity) {
         String sql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
@@ -147,7 +151,7 @@ public class StockDao extends Dao {
         try (Connection con = getConnection()) {
             con.setAutoCommit(false); // トランザクション開始
 
-            // 在庫数を加算
+            /** 在庫数を加算 */
             try (PreparedStatement ps = con.prepareStatement(updateStockSql)) {
                 ps.setInt(1, quantity);
                 ps.setInt(2, storeId);
@@ -159,7 +163,7 @@ public class StockDao extends Dao {
                 }
             }
 
-         // 最新状態をSTOCK_STATUSに記録（MERGEでINSERT or UPDATE）
+            /** 最新状態をSTOCK_STATUSに記録（MERGEでINSERT or UPDATE） */
             try (PreparedStatement ps = con.prepareStatement(upsertStatusSql)) {
                 ps.setString(1, itemId);
                 ps.setInt(2, storeId);
@@ -175,5 +179,76 @@ public class StockDao extends Dao {
             result = false;
         }
         return result;
+    }
+
+    // 在庫の入出荷履歴
+    /** 最新の入荷履歴を1件取得 */
+    public HistoryBean findLatestInbound(int storeId, String itemId) {
+        String sql = "SELECT ss.ITEM_ID, ss.STORE_ID, ss.USER_ID, u.NAME, " +
+                     "ss.LAST_ACTION_TYPE, ss.QUANTITY, ss.ACTION_AT, i.ITEM_NAME " +
+                     "FROM STOCK_STATUS ss " +
+                     "JOIN USERS u ON ss.USER_ID = u.USER_ID " +
+                     "JOIN ITEMS i ON ss.ITEM_ID = i.ITEM_ID " +
+                     "WHERE ss.STORE_ID = ? AND ss.ITEM_ID = ? AND ss.LAST_ACTION_TYPE = 'RECEIVE' " +
+                     "ORDER BY ss.ACTION_AT DESC LIMIT 1";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, storeId);
+            ps.setString(2, itemId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new HistoryBean(
+                        rs.getString("ITEM_ID"),
+                        rs.getString("ITEM_NAME"),
+                        rs.getInt("STORE_ID"),
+                        rs.getString("USER_ID"),
+                        rs.getString("NAME"),
+                        rs.getString("LAST_ACTION_TYPE"),
+                        rs.getInt("QUANTITY"),
+                        rs.getTimestamp("ACTION_AT")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /** 最新の出荷履歴を1件取得 */
+    public HistoryBean findLatestOutbound(int storeId, String itemId) {
+        String sql = "SELECT ss.ITEM_ID, ss.STORE_ID, ss.USER_ID, u.NAME, " +
+                     "ss.LAST_ACTION_TYPE, ss.QUANTITY, ss.ACTION_AT, i.ITEM_NAME " +
+                     "FROM STOCK_STATUS ss " +
+                     "JOIN USERS u ON ss.USER_ID = u.USER_ID " +
+                     "JOIN ITEMS i ON ss.ITEM_ID = i.ITEM_ID " +
+                     "WHERE ss.STORE_ID = ? AND ss.ITEM_ID = ? AND ss.LAST_ACTION_TYPE = 'SHIP' " +
+                     "ORDER BY ss.ACTION_AT DESC LIMIT 1";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, storeId);
+            ps.setString(2, itemId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new HistoryBean(
+                        rs.getString("ITEM_ID"),
+                        rs.getString("ITEM_NAME"),
+                        rs.getInt("STORE_ID"),
+                        rs.getString("USER_ID"),
+                        rs.getString("NAME"),
+                        rs.getString("LAST_ACTION_TYPE"),
+                        rs.getInt("QUANTITY"),
+                        rs.getTimestamp("ACTION_AT")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

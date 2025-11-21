@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.StockBean;
+import stockmaster.bean.UserBean;
 import stockmaster.dao.StockDao;
 
 @WebServlet("/searchProduct")
@@ -23,7 +24,10 @@ public class SearchProductServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("username") == null) {
+        UserBean loginUser = (session != null) ? (UserBean) session.getAttribute("loginUser") : null;
+
+        if (loginUser == null) {
+            // 未ログインならログイン画面へリダイレクト
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -31,21 +35,23 @@ public class SearchProductServlet extends HttpServlet {
         String keyword = request.getParameter("keyword");
         String productId = request.getParameter("productId");
 
-        // 仮にログインユーザーに紐づく店舗IDがあるとする（例: 1）
-        int storeId = 1;
+        // 仮にログインユーザーに紐づく店舗ID
+        int storeId = loginUser.getStoreId();
 
         StockDao dao = new StockDao();
         List<StockBean> results = new ArrayList<>();
 
-        if (productId != null && !productId.isEmpty()) {
-            // 🔹 商品IDで検索（バーコード検索）
-            StockBean bean = dao.findByItemId(storeId, productId);
+        if (productId != null && !productId.trim().isEmpty()) {
+            // 商品IDで検索（バーコード検索）
+            StockBean bean = dao.findByItemId(storeId, productId.trim());
             if (bean != null) {
                 results.add(bean);
             }
-        } else if (keyword != null && !keyword.isEmpty()) {
-            results = dao.findByStoreAndKeyword(storeId, keyword);
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
+            // キーワード検索
+            results = dao.findByStoreAndKeyword(storeId, keyword.trim());
         } else {
+            // 店舗全体の在庫を取得
             results = dao.findByStore(storeId);
         }
 

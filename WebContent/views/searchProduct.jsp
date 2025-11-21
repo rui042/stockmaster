@@ -8,27 +8,121 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root{
-      --primary:#0b67c2; --accent:#17a2a8;
-      --bg1:#f7fbff; --bg2:#eaf3ff;
-      --btn-bg:#fff; --btn-border:#d8eaf6; --btn-text:#153a57;
-      --btn-hover-bg:linear-gradient(90deg,#17a2a8,#0b67c2);
+      --primary:#0b67c2;
+       --accent:#17a2a8;
+      --bg1:#f7fbff;
+      --bg2:#eaf3ff;
+      --btn-bg:#fff;
+      --btn-border:#d8eaf6;
+      --btn-text:#153a57;
+      --btn-hover-upbg:linear-gradient(90deg,#17a2a8,#0b67c2);
+      --btn-hover-hsbg:linear-gradient(90deg, #ff9800, #f39c12);
     }
-    body{font-family:"Yu Gothic","Segoe UI",system-ui,Arial,sans-serif;
-         background:linear-gradient(90deg,var(--bg1),var(--bg2));
-         margin:0;padding:0;}
-    .wrap{min-height:100%;display:flex;flex-direction:column;}
-    main{flex:1;padding:20px;margin-left:140px;}
-    h2{color:var(--primary);margin-top:0;}
-    .search-box{display:flex;gap:8px;margin-bottom:16px;}
-    .search-box input[type=text]{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px;}
-    .search-box button{padding:10px 16px;background:var(--btn-hover-bg);color:#fff;
-                       border:none;border-radius:8px;font-weight:700;cursor:pointer;}
-    .barcode-box{margin:20px 0;padding:16px;border:1px dashed #aaa;border-radius:8px;background:#fff;}
-    .barcode-box h3{margin:0 0 8px;color:#0b67c2;}
-    table{width:100%;border-collapse:collapse;background:#fff;}
-    th,td{padding:10px 12px;border:1px solid #d8eaf6;text-align:left;}
-    th{background:var(--primary);color:#fff;}
-    tr:nth-child(even){background:#f0f7ff;}
+
+    body{
+      font-family:"Yu Gothic","Segoe UI",system-ui,Arial,sans-serif;
+      background:linear-gradient(90deg,var(--bg1),var(--bg2));
+      margin:0;padding:0;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+    }
+
+    main{
+      flex:1;
+      padding:20px;
+      margin-left:140px;
+    }
+
+    h2{
+      color:var(--primary);
+      margin-top:0;
+    }
+
+    .search-box{
+      display:flex;
+      gap:8px;
+      margin-bottom:16px;
+    }
+
+    .search-box input[type=text]{
+      flex:1;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:8px;
+    }
+
+    .search-box button{
+      padding:10px 16px;
+      background:var(--btn-hover-bg);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .barcode-box{
+      margin:20px 0;
+      padding:16px;
+      border:1px dashed #aaa;
+      border-radius:8px;
+      background:#fff;
+    }
+
+    .barcode-box h3{
+      margin:0 0 8px;
+      color:#0b67c2;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+    }
+
+    th,td{
+      padding:10px 12px;
+      border:1px solid #d8eaf6;
+      text-align:left;
+    }
+
+    th{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    tr:nth-child(even){
+      background:#f0f7ff;
+    }
+
+    .btn-update {
+      padding: 6px 12px;
+      background: var(--btn-hover-upbg);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-history {
+      padding: 6px 12px;
+      background: var(--btn-hover-hsbg);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+   }
+
+    .btn-update:hover,
+    .btn-history:hover {
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
@@ -64,6 +158,7 @@
                 <th>価格</th>
                 <th>現在庫</th>
                 <th>最小在庫</th>
+                <th>入出荷履歴</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -76,14 +171,22 @@
                   <td>${p.stockNow}</td>
                   <td>${p.stockMin}</td>
                   <td>
-  						<form action="${pageContext.request.contextPath}/updateItem" method="get">
-    						<input type="hidden" name="itemId" value="${p.itemId}" />
-    						<input type="hidden" name="itemName" value="${p.itemName}" />
-    						<input type="hidden" name="price" value="${p.price}" />
-    						<button type="submit" style="padding:6px 12px;background:var(--btn-hover-bg);color:#fff;
-            				border:none;border-radius:6px;font-weight:600;cursor:pointer;">更新</button>
-  						</form>
-				   </td>
+	                <!-- 入出荷履歴の詳細ボタン -->
+	                <form action="${pageContext.request.contextPath}/stockHistory" method="get">
+	                  <input type="hidden" name="itemId" value="${p.itemId}" />
+	                  <input type="hidden" name="storeId" value="${p.storeId}" />
+	                  <button type="submit" class="btn-history">詳細</button>
+	                </form>
+	              </td>
+                  <td>
+                    <!-- 更新ボタンのみ（履歴ボタンはここには置かない） -->
+  					<form action="${pageContext.request.contextPath}/updateItem" method="get">
+    				  <input type="hidden" name="itemId" value="${p.itemId}" />
+    				  <input type="hidden" name="itemName" value="${p.itemName}" />
+    				  <input type="hidden" name="price" value="${p.price}" />
+    				  <button type="submit" class="btn-update">更新</button>
+  					</form>
+				 </td>
                 </tr>
               </c:forEach>
             </tbody>
@@ -93,6 +196,7 @@
           <p>検索結果はありません。</p>
         </c:otherwise>
       </c:choose>
+
     </main>
   </div>
 </body>
