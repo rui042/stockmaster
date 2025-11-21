@@ -137,12 +137,12 @@ public class StockDao extends Dao {
     }
 
     /** 入荷処理（在庫更新＋最新状態をSTOCK_STATUSに記録） */
-    public boolean receiveStock(int storeId, String itemId, int quantity) {
+    public boolean receiveStock(int storeId, String itemId, int quantity, String userId) {
         boolean result = false;
         String updateStockSql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
-        String upsertStatusSql = "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT) " +
-                				   "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) " +
-                				   "VALUES (?, ?, 'RECEIVE', ?, CURRENT_TIMESTAMP)";
+        String upsertStatusSql = "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT, USER_ID) "
+                				+ "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) "
+                				+ "VALUES (?, ?, 'RECEIVE', ?, CURRENT_TIMESTAMP, ?)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false); // トランザクション開始
@@ -164,6 +164,7 @@ public class StockDao extends Dao {
                 ps.setString(1, itemId);
                 ps.setInt(2, storeId);
                 ps.setInt(3, quantity);
+                ps.setString(4, userId);
                 ps.executeUpdate();
             }
 

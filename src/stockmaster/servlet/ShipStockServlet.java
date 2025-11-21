@@ -107,13 +107,14 @@ public class ShipStockServlet extends HttpServlet {
 
                     // 最新状態をSTOCK_STATUSに記録
                     PreparedStatement psStatus = conn.prepareStatement(
-                            "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT) " +
-                            "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) " +
-                            "VALUES (?, ?, 'SHIP', ?, CURRENT_TIMESTAMP)"
+                            "MERGE INTO STOCK_STATUS (ITEM_ID, STORE_ID, LAST_ACTION_TYPE, QUANTITY, ACTION_AT, USER_ID) "
+                          + "KEY (ITEM_ID, STORE_ID, LAST_ACTION_TYPE) "
+                          + "VALUES (?, ?, 'SHIP', ?, CURRENT_TIMESTAMP, ?)"
                     );
                     psStatus.setString(1, productId);
                     psStatus.setInt(2, storeId);
                     psStatus.setInt(3, quantity);
+                    psStatus.setString(4, loginUser.getUserId());
                     psStatus.executeUpdate();
 
                     conn.commit();

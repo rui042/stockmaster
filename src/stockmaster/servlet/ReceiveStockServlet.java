@@ -48,7 +48,6 @@ public class ReceiveStockServlet extends HttpServlet {
 
         // storeId はセッションから取得（hiddenフィールドは参考程度）
         int storeId = loginUser.getStoreId();
-//        String storeIdParam = req.getParameter("storeId");
         String productId = req.getParameter("productId");
         String quantityParam = req.getParameter("quantity");
 
@@ -61,13 +60,6 @@ public class ReceiveStockServlet extends HttpServlet {
         }
 
         int quantity;
-//        try {
-//            storeId = Integer.parseInt(storeIdParam.trim());
-//        } catch (NumberFormatException e) {
-//            json = "{\"status\":\"error\",\"message\":\"店舗IDは数値で指定してください。\"}";
-//            resp.getWriter().write(json);
-//            return;
-//        }
 
         try {
             quantity = Integer.parseInt(quantityParam.trim());
@@ -97,7 +89,7 @@ public class ReceiveStockServlet extends HttpServlet {
             int current = stock.getStockNow();
             int updated = current + quantity;
 
-            boolean updatedFlag = dao.receiveStock(storeId, productId.trim(), quantity);
+            boolean updatedFlag = dao.receiveStock(storeId, productId.trim(), quantity, loginUser.getUserId());
 
             if (updatedFlag) {
                 // 出荷処理と同じ形式のメッセージに統一
