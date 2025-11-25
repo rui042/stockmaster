@@ -260,6 +260,15 @@
           </button>
         </form>
       </c:if>
+
+      <!-- 管理者専用 -->
+      <c:if test="${sessionScope.isAdmin}">
+        <form action="register" method="get">
+          <button class="menu-card" type="submit">
+            <div class="icon">🫂</div><div>新規登録</div>
+          </button>
+        </form>
+      </c:if>
     </div>
   </main>
 

@@ -64,43 +64,52 @@
       transform: translateY(-2px);
     }
 
-    .footer-links {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 0.9rem;
-    }
+	/* 補助的なボタンスタイル */
+	.welcome-box button.secondary-btn {
+	  width: 90% !important;
+	  padding: 12px !important;
+	  font-size: 0.95rem !important;
+	  border-radius: 24px !important;
+	  margin: 0 auto !important;
+	}
 
-    .guest-btn {
-      margin-top: 12px;
-      background: none;
-      border: none;
-      color: #0b67c2;
-      text-decoration: underline;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
+	.footer-links {
+	  margin-top: 40px;
+	  text-align: right;
+	  font-size: 0.9rem;
+	  position: static;
+	}
 
-    .guest-btn:hover {
-      opacity: 0.8;
-    }
+	.staff-btn {
+	  background: none;
+	  border: none;
+	  color: #0b67c2;
+	  text-decoration: underline;
+	  cursor: pointer;
+	  font-size: 0.95rem;
+	}
+
+	.staff-btn:hover {
+	  opacity: 0.8;
+	}
   </style>
 <body>
   <div class="welcome-box">
     <h1>すとっくますたー</h1>
 
-    <!-- ログイン -->
-    <form action="${pageContext.request.contextPath}/login" method="get">
-      <button type="submit">ログインをする</button>
+    <!-- マップ表示へ遷移 -->
+    <form action="${pageContext.request.contextPath}/showmap" method="get">
+      <button type="submit">マップを表示する</button>
     </form>
 
-    <!-- 新規登録 -->
-    <form action="${pageContext.request.contextPath}/register" method="get">
-      <button type="submit">新規登録をする</button>
+    <!-- 店舗検索へ遷移 -->
+    <form action="${pageContext.request.contextPath}/searchStore" method="get">
+      <button type="submit" class="secondary-btn">店舗の検索をする</button>
     </form>
 
-    <!-- ログインせずに使用 -->
+    <!-- 従業員用ログイン -->
     <div class="footer-links">
-      <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
+      <a href="${pageContext.request.contextPath}/login" class="staff-btn">従業員の方はこちらから</a>
     </div>
   </div>
 </body>

@@ -7,22 +7,24 @@ public class UserBean {
     private String email;
     private boolean isStaff;
     private Integer storeId;
+    private boolean isAdmin;
     private String storeName;	// STORES.STORE_NAME を保持（JOINで取得）
 
     public UserBean() {}
 
     // コンストラクタ（email あり）
-    public UserBean(String userId, String password, String name, String email, boolean isStaff) {
+    public UserBean(String userId, String password, String name, String email, boolean isStaff, boolean isAdmin) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
         this.isStaff = isStaff;
+        this.isAdmin = isAdmin;
     }
 
     // 既存のコンストラクタ（email なし）も残しておくと互換性が保てる
     public UserBean(String userId, String password, String name, boolean isStaff) {
-        this(userId, password, name, null, isStaff);
+        this(userId, password, name, null, isStaff, isStaff);
     }
 
     public String getUserId() {
@@ -81,12 +83,21 @@ public class UserBean {
 		this.storeName = storeName;
 	}
 
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+
 	@Override
     public String toString() {
         return "UserBean [userId=" + userId +
                ", name=" + name +
                ", email=" + email +
                ", isStaff=" + isStaff +
+               ", isAdmin=" + isAdmin +
                ", storeId=" + storeId +
                ", storeName=" + storeName + "]";
     }

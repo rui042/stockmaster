@@ -39,17 +39,20 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
             System.out.println("ログイン成功: " + user.getName());
 
-            // ✅ セッション作成
+            // セッション作成
             HttpSession session = req.getSession(true);
 
-            // ✅ UserBean自体をセッションに保存（ログイン情報をまとめて持たせる）
+            // UserBean自体をセッションに保存（ログイン情報をまとめて持たせる）
             session.setAttribute("loginUser", user);
 
-            // 🔹 旧仕様互換（必要なら残す）
+            //  旧仕様互換（必要なら残す）
             session.setAttribute("username", user.getName());
             session.setAttribute("isStaff", user.isStaff());
 
-            // ✅ メニュー画面にリダイレクト
+            // 管理者権限をセッションに保存
+            session.setAttribute("isAdmin", user.isAdmin());
+
+            // メニュー画面にリダイレクト
             resp.sendRedirect(req.getContextPath() + "/menu");
 
         } else {
