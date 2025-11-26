@@ -32,6 +32,8 @@
       font-size: 1.4rem;
       margin-bottom: 24px;
       letter-spacing: 1px;
+      line-height: 1.2;
+  		padding: 4px 0;
     }
 
     .side-menu a {
@@ -146,10 +148,11 @@
 <body>
   <!-- サイドメニュー -->
   <nav class="side-menu" role="navigation" aria-label="サイドメニュー">
-    <div class="logo">SM</div>
+  <!-- ロゴをリンク化して Menu ページへ遷移 -->
+  	<a href="${pageContext.request.contextPath}/menu" class="logo" title="メニュー">SM</a>
 
 	<!-- 共通機能 -->
-    <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a>
+    <!-- <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a> -->
     <a href="${pageContext.request.contextPath}/selectStore" title="地図">Map</a>
     <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
     <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
@@ -161,6 +164,11 @@
       <a href="${pageContext.request.contextPath}/receiveStock" title="入荷処理">Recv</a>
       <a href="${pageContext.request.contextPath}/shipStock" title="出荷処理">Ship</a>
     </c:if>
+
+    <!-- 管理者専用機能 -->
+	  <c:if test="${sessionScope.isAdmin}">
+	    <a href="${pageContext.request.contextPath}/registerUser" title="新規登録">Register</a>
+	  </c:if>
 
     <div class="bottom">v1.2</div>
   </nav>
