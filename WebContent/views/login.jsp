@@ -153,16 +153,16 @@
 
     <!-- 🔹 新規登録フォーム -->
     <div class="footer-links">
-      <form action="${pageContext.request.contextPath}/register" method="get">
+      <!-- <form action="${pageContext.request.contextPath}/register" method="get">
         <button type="submit" class="register-btn">新規登録はこちら</button>
-      </form>
+      </form> -->
       <p><a href="#">パスワードを忘れた？</a></p>
     </div>
 
     <!-- 🔹 ログインせずに使用 -->
-	<div class="footer-links guest-access">
+	<!-- <div class="footer-links guest-access">
 	  <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
-	</div>
+	</div> -->
   </div>
 </body>
 </html>

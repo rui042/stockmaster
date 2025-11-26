@@ -11,16 +11,33 @@
       font-family: "Yu Gothic", "Segoe UI", system-ui, Arial, sans-serif;
       background: #f7fbff;
       margin: 0;
+      padding: 0;
+      height: 100vh;
+    }
+
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-left: 120px;
+      padding-top: 80px;
       padding: 20px;
     }
 
     .form-card {
-      max-width: 420px;
-      margin: auto;
-      background: #fff;
+      width: 100%;
+      max-width: 600px;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background-color: #fff;
+      border-radius: 8px;
     }
 
     h2 {
@@ -58,23 +75,12 @@
       opacity: 0.9;
     }
 
-    .form-card {
-	  width: 100%;
-	  max-width: 600px;
-	  padding: 20px;
-	  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-	  background-color: #fff;
-	  border-radius: 8px;
-	}
-
-
     .note {
       font-size: 0.85rem;
       color: #666;
       margin-top: 4px;
     }
 
-    /* トースト通知 */
     #toast {
       position: fixed;
       top: -60px;
@@ -122,104 +128,108 @@
 </head>
 <body>
   <jsp:include page="_miniMenu.jsp" />
+  <div class="wrap">
 
-  <div class="form-card">
-    <h2>出荷処理</h2>
-    <form id="shipForm">
+		<main>
+		  <div class="form-card">
+		    <h2>出荷処理</h2>
+		    <form id="shipForm">
 
-      <!-- 店舗選択 -->
-      <label>店舗 (ログインユーザーに固定されます)
-        <input type="hidden" id="storeId" name="storeId" value="${loginUser.storeId}" />
-        <input type="text" value="${loginUser.storeName}" readonly />
-      </label>
+		      <!-- 店舗選択 -->
+		      <label>店舗 (ログインユーザーに固定されます)
+		        <input type="hidden" id="storeId" name="storeId" value="${loginUser.storeId}" />
+		        <input type="text" value="${loginUser.storeName}" readonly />
+		      </label>
 
-      <!-- 商品ID（バーコード入力のみ） -->
-      <label>商品バーコード
-        <input type="text" id="productId" name="productId" placeholder="バーコードをスキャン" required>
-        <div class="note">※バーコードリーダー専用（手入力不可）</div>
-      </label>
+		      <!-- 商品ID（バーコード入力のみ） -->
+		      <label>商品バーコード
+		        <input type="text" id="productId" name="productId" placeholder="バーコードをスキャン" required>
+		        <div class="note">※バーコードリーダー専用（手入力不可）</div>
+		      </label>
 
-      <!-- 出荷数（テンキー入力） -->
-      <label>出荷数
-        <input type="text" id="quantity" name="quantity" required>
-      </label>
+		      <!-- 出荷数（テンキー入力） -->
+		      <label>出荷数
+		        <input type="text" id="quantity" name="quantity" required>
+		      </label>
 
-      <!-- テンキー -->
-      <div class="keypad">
-        <button type="button" onclick="addNumber(1)">1</button>
-        <button type="button" onclick="addNumber(2)">2</button>
-        <button type="button" onclick="addNumber(3)">3</button>
-        <button type="button" onclick="addNumber(4)">4</button>
-        <button type="button" onclick="addNumber(5)">5</button>
-        <button type="button" onclick="addNumber(6)">6</button>
-        <button type="button" onclick="addNumber(7)">7</button>
-        <button type="button" onclick="addNumber(8)">8</button>
-        <button type="button" onclick="addNumber(9)">9</button>
-        <button type="button" onclick="clearInput()">クリア</button>
-        <button type="button" onclick="addNumber(0)">0</button>
-        <button type="submit">出荷確定</button>
-      </div>
-    </form>
-  </div>
+		      <!-- テンキー -->
+		      <div class="keypad">
+		        <button type="button" onclick="addNumber(1)">1</button>
+		        <button type="button" onclick="addNumber(2)">2</button>
+		        <button type="button" onclick="addNumber(3)">3</button>
+		        <button type="button" onclick="addNumber(4)">4</button>
+		        <button type="button" onclick="addNumber(5)">5</button>
+		        <button type="button" onclick="addNumber(6)">6</button>
+		        <button type="button" onclick="addNumber(7)">7</button>
+		        <button type="button" onclick="addNumber(8)">8</button>
+		        <button type="button" onclick="addNumber(9)">9</button>
+		        <button type="button" onclick="clearInput()">クリア</button>
+		        <button type="button" onclick="addNumber(0)">0</button>
+		        <button type="submit">出荷確定</button>
+		      </div>
+		    </form>
+		  </div>
 
-  <div id="toast"></div>
+		  <div id="toast"></div>
 
-  <script>
-    // テンキー入力制御
-    function addNumber(num) {
-      document.getElementById("quantity").value += num;
-    }
-    function clearInput() {
-      document.getElementById("quantity").value = "";
-    }
+		  <script>
+		    // テンキー入力制御
+		    function addNumber(num) {
+		      document.getElementById("quantity").value += num;
+		    }
+		    function clearInput() {
+		      document.getElementById("quantity").value = "";
+		    }
 
-    // 出荷確定処理
-    document.getElementById("shipForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+		    // 出荷確定処理
+		    document.getElementById("shipForm").addEventListener("submit", async (e) => {
+		      e.preventDefault();
 
-      const storeId = document.getElementById("storeId").value;
-      const productId = document.getElementById("productId").value.trim();
-      const quantity = document.getElementById("quantity").value.trim();
+		      const storeId = document.getElementById("storeId").value;
+		      const productId = document.getElementById("productId").value.trim();
+		      const quantity = document.getElementById("quantity").value.trim();
 
-      if (!storeId || !productId || !quantity) {
-        showToast("すべての項目を入力してください", "error");
-        return;
-      }
+		      if (!storeId || !productId || !quantity) {
+		        showToast("すべての項目を入力してください", "error");
+		        return;
+		      }
 
-      try {
-        const res = await fetch("shipStock", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          // 👇 JSP誤認防止のため「\${}」でエスケープ！
-          body: `storeId=\${encodeURIComponent(storeId)}&productId=\${encodeURIComponent(productId)}&quantity=\${encodeURIComponent(quantity)}`
-        });
+		      try {
+		        const res = await fetch("shipStock", {
+		          method: "POST",
+		          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		          // 👇 JSP誤認防止のため「\${}」でエスケープ！
+		          body: `storeId=\${encodeURIComponent(storeId)}&productId=\${encodeURIComponent(productId)}&quantity=\${encodeURIComponent(quantity)}`
+		        });
 
-        const data = await res.json();
-        showToast(data.message, data.status);
+		        const data = await res.json();
+		        showToast(data.message, data.status);
 
-        if (data.status === "success") {
-          clearInput();
-          document.getElementById("productId").value = "";
-        }
+		        if (data.status === "success") {
+		          clearInput();
+		          document.getElementById("productId").value = "";
+		        }
 
-      } catch (err) {
-        console.error(err);
-        showToast("通信エラーが発生しました", "error");
-      }
-    });
+		      } catch (err) {
+		        console.error(err);
+		        showToast("通信エラーが発生しました", "error");
+		      }
+		    });
 
-    // トースト通知
-    function showToast(message, status) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
+		    // トースト通知
+		    function showToast(message, status) {
+		      const toast = document.getElementById("toast");
+		      toast.textContent = message;
 
-      if (status === "error") toast.style.backgroundColor = "#e53935";
-      else if (status === "warning") toast.style.backgroundColor = "#fbc02d";
-      else toast.style.backgroundColor = "#43a047";
+		      if (status === "error") toast.style.backgroundColor = "#e53935";
+		      else if (status === "warning") toast.style.backgroundColor = "#fbc02d";
+		      else toast.style.backgroundColor = "#43a047";
 
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
-    }
-  </script>
+		      toast.classList.add("show");
+		      setTimeout(() => toast.classList.remove("show"), 3000);
+		    }
+		  </script>
+		</main>
+	</div>
 </body>
 </html>

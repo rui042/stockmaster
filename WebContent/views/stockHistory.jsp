@@ -28,12 +28,22 @@
       font-family: "Yu Gothic", "Segoe UI", system-ui, Arial, sans-serif;
       background: linear-gradient(90deg, var(--bg1), var(--bg2));
       color: #19324a;
+      /* 追加推奨 */
+      height: 100vh;
     }
 
     .wrap {
-      padding: 20px;
-      max-width: 1200px;
-      margin: auto;
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+    }
+
+    main {
+      flex:1;
+      margin-left:120px;
+      padding-top:80p;
+      padding:20px;
+      max-width:960px;
     }
 
     h2 {
@@ -43,37 +53,35 @@
       color: var(--primary);
     }
 
-    /* 入出荷履歴テーブル */
-	table.history-info {
-	  width: 400px;
-	  border-collapse: collapse;
-	  background: #fff;
-	  border-radius: var(--radius);
-	  box-shadow: var(--shadow);
-	  overflow: hidden;
-	}
+    table.history-info {
+      width: 400px;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
 
-	table.history-info th,
-	table.history-info td {
-	  border: 1px solid #ccc;
-	  padding: 10px 14px;
-	  font-size: 0.95rem;
-	}
+    table.history-info th,
+    table.history-info td {
+      border: 1px solid #ccc;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+    }
 
-	table.history-info th {
-	  background-color: var(--bg2);
-	  color: var(--primary);
-	  font-weight: 600;
-	  text-align: left;
-	  width: 40%;
-	}
+    table.history-info th {
+      background-color: var(--bg2);
+      color: var(--primary);
+      font-weight: 600;
+      text-align: left;
+      width: 40%;
+    }
 
-	table.history-info td {
-	  text-align: left;
-	  width: 60%;
-	}
+    table.history-info td {
+      text-align: left;
+      width: 60%;
+    }
 
-    /* 横並び配置 */
     .history-container {
       display: flex;
       gap: 40px;
@@ -85,95 +93,98 @@
       text-align: center;
       margin-top: 20px;
     }
-</style>
+  </style>
 </head>
 <body>
   <jsp:include page="_miniMenu.jsp" />
   <div class="wrap">
-    <h2>入出荷履歴</h2>
 
-    <div class="history-container">
-      <!-- 入荷処理テーブル -->
-      <table class="history-info">
-        <thead>
-          <tr>
-            <th colspan="2">入荷処理</th>
-          </tr>
-        </thead>
-        <tbody>
-          <c:choose>
-            <c:when test="${inbound != null}">
-              <tr>
-                <th>商品番号</th>
-                <td>${inbound.itemId}</td>
-              </tr>
-              <tr>
-                <th>商品名</th>
-                <td>${inbound.itemName}</td>
-              </tr>
-              <tr>
-                <th>入荷数量</th>
-                <td>${inbound.quantity}</td>
-              </tr>
-              <tr>
-                <th>最新入荷日付</th>
-                <td><fmt:formatDate value="${inbound.actionAt}" pattern="yyyy/MM/dd HH:mm" /></td>
-              </tr>
-              <tr>
-                <th>入荷担当者</th>
-                <td>${inbound.userName}</td>
-              </tr>
-            </c:when>
-            <c:otherwise>
-              <tr>
-                <td colspan="2">履歴はまだありません。</td>
-              </tr>
-            </c:otherwise>
-          </c:choose>
-        </tbody>
-      </table>
+	  <main>
+	     <h2>入出荷履歴</h2>
 
-      <!-- 出荷処理テーブル -->
-      <table class="history-info">
-        <thead>
-          <tr>
-            <th colspan="2">出荷処理</th>
-          </tr>
-        </thead>
-        <tbody>
-          <c:choose>
-            <c:when test="${outbound != null}">
-              <tr>
-                <th>商品番号</th>
-                <td>${outbound.itemId}</td>
-              </tr>
-              <tr>
-                <th>商品名</th>
-                <td>${outbound.itemName}</td>
-              </tr>
-              <tr>
-                <th>出荷数量</th>
-                <td>${outbound.quantity}</td>
-              </tr>
-              <tr>
-                <th>最新出荷日付</th>
-                <td><fmt:formatDate value="${outbound.actionAt}" pattern="yyyy/MM/dd HH:mm" /></td>
-              </tr>
-              <tr>
-                <th>出荷担当者</th>
-                <td>${outbound.userName}</td>
-              </tr>
-            </c:when>
-            <c:otherwise>
-              <tr>
-                <td colspan="2">履歴はまだありません。</td>
-              </tr>
-            </c:otherwise>
-          </c:choose>
-        </tbody>
-      </table>
-    </div>
+	     <div class="history-container">
+	       <!-- 入荷処理テーブル -->
+	       <table class="history-info">
+	         <thead>
+	           <tr>
+	             <th colspan="2">入荷処理</th>
+	           </tr>
+	         </thead>
+	         <tbody>
+	           <c:choose>
+	             <c:when test="${inbound != null}">
+	               <tr>
+	                 <th>商品番号</th>
+	                 <td>${inbound.itemId}</td>
+	               </tr>
+	               <tr>
+	                 <th>商品名</th>
+	                 <td>${inbound.itemName}</td>
+	               </tr>
+	               <tr>
+	                 <th>入荷数量</th>
+	                 <td>${inbound.quantity}</td>
+	               </tr>
+	               <tr>
+	                 <th>最新入荷日付</th>
+	                 <td><fmt:formatDate value="${inbound.actionAt}" pattern="yyyy/MM/dd HH:mm" /></td>
+	               </tr>
+	               <tr>
+	                 <th>入荷担当者</th>
+	                 <td>${inbound.userName}</td>
+	               </tr>
+	             </c:when>
+	             <c:otherwise>
+	               <tr>
+	                 <td colspan="2">履歴はまだありません。</td>
+	               </tr>
+	             </c:otherwise>
+	           </c:choose>
+	         </tbody>
+	       </table>
 
+	       <!-- 出荷処理テーブル -->
+	       <table class="history-info">
+	         <thead>
+	           <tr>
+	             <th colspan="2">出荷処理</th>
+	           </tr>
+	         </thead>
+	         <tbody>
+	           <c:choose>
+	             <c:when test="${outbound != null}">
+	               <tr>
+	                 <th>商品番号</th>
+	                 <td>${outbound.itemId}</td>
+	               </tr>
+	               <tr>
+	                 <th>商品名</th>
+	                 <td>${outbound.itemName}</td>
+	               </tr>
+	               <tr>
+	                 <th>出荷数量</th>
+	                 <td>${outbound.quantity}</td>
+	               </tr>
+	               <tr>
+	                 <th>最新出荷日付</th>
+	                 <td><fmt:formatDate value="${outbound.actionAt}" pattern="yyyy/MM/dd HH:mm" /></td>
+	               </tr>
+	               <tr>
+	                 <th>出荷担当者</th>
+	                 <td>${outbound.userName}</td>
+	               </tr>
+	             </c:when>
+	             <c:otherwise>
+	               <tr>
+	                 <td colspan="2">履歴はまだありません。</td>
+	               </tr>
+	             </c:otherwise>
+	           </c:choose>
+	         </tbody>
+	       </table>
+	     </div>
+
+	  </main>
   </div>
 </body>
 </html>
