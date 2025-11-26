@@ -167,7 +167,7 @@
 
     <!-- 管理者専用機能 -->
 	  <c:if test="${sessionScope.isAdmin}">
-	    <a href="${pageContext.request.contextPath}/registerUser" title="新規登録">Register</a>
+	    <a href="${pageContext.request.contextPath}/register" title="新規登録">Register</a>
 	  </c:if>
 
     <div class="bottom">v1.2</div>
