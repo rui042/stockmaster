@@ -107,42 +107,106 @@
     .guest-btn:hover {
       color: #213547;
     }
+
+    #toast {
+	  position: fixed;
+	  bottom: 20px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  background: #333;
+	  color: #fff;
+	  padding: 12px 24px;
+	  border-radius: 4px;
+	  opacity: 0;
+	  transition: opacity 0.3s ease;
+	  z-index: 9999;
+	}
+	#toast.show {
+	  opacity: 1;
+	}
   </style>
 </head>
 <body>
   <div class="register-box">
     <h2>新規登録</h2>
-    <form action="${pageContext.request.contextPath}/register" method="post">
-      <label for="userId">ユーザーID</label>
-      <input type="text" id="userId" name="userId" required autofocus>
 
-      <label for="username">ユーザー名</label>
-      <input type="text" id="username" name="username" required>
+    <c:if test="${sessionScope.isAdmin}">
+      <form id="registerForm">
+        <label for="userId">ユーザーID</label>
+        <input type="text" id="userId" name="userId" required autofocus>
 
-      <label for="email">メールアドレス</label>
-      <input type="email" id="email" name="email" required>
+        <label for="username">ユーザー名</label>
+        <input type="text" id="username" name="username" required>
 
-      <label for="password">パスワード</label>
-      <input type="password" id="password" name="password" required>
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" required>
 
-      <label for="confirmPassword">パスワード（確認）</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <!-- 🔹 店舗はログインユーザーに固定 -->
+        <label>店舗 (ログインユーザーに固定されます)</label>
+		<input type="hidden" name="storeId" value="${sessionScope.loginUser.storeId}" />
+		<input type="text" value="${sessionScope.loginUser.storeName}" readonly />
 
-      <button type="submit">登録する</button>
-    </form>
+        <label for="password">パスワード</label>
+        <input type="password" id="password" name="password" required>
 
+        <label for="confirmPassword">パスワード（確認）</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+        <button type="submit">登録する</button>
+      </form>
+    </c:if>
+
+    <!-- エラーメッセージ -->
     <c:if test="${not empty error}">
       <div class="error">${error}</div>
     </c:if>
 
-    <div class="footer-links">
+    <!-- <div class="footer-links">
       <a href="views/login.jsp">ログイン画面へ戻る</a>
-    </div>
+    </div> -->
 
     <!-- 🔹 ログインせずに使用 -->
-	<div class="footer-links guest-access">
+	<!-- <div class="footer-links guest-access">
 	  <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
-	</div>
+	</div> -->
+
+	<div id="toast"></div>
+	<script>
+      document.getElementById("registerForm").addEventListener("submit", function(e) {
+        e.preventDefault(); // 通常のフォーム送信を止める
+
+        const formData = new URLSearchParams(new FormData(this));
+
+        fetch("${pageContext.request.contextPath}/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            showToast(data.message, data.status); // ← messageBox は使わない
+            if (data.status === "success") {
+              document.getElementById("registerForm").reset();
+            }
+          })
+          .catch(error => {
+            showToast("通信エラーが発生しました: " + error, "error");
+          });
+        });
+
+      function showToast(message, status) {
+    	  const toast = document.getElementById("toast");
+    	  if (!toast) return; // 要素がなければ何もしない
+
+    	  toast.textContent = message;
+    	  toast.style.background = (status === "success") ? "#43a047" : "#d9534f";
+    	  toast.className = "show";
+
+    	  setTimeout(() => {
+    	    toast.className = toast.className.replace("show", "");
+    	  }, 3000);
+    	}
+    </script>
   </div>
 </body>
 </html>
