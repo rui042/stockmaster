@@ -33,6 +33,17 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo img {
+      width: 240px;
+      height: auto;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
     .welcome-box h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -95,7 +106,10 @@
   </style>
 <body>
   <div class="welcome-box">
-    <h1>すとっくますたー</h1>
+    <!-- 🔹 ロゴ -->
+    <div class="logo">
+      <img src="${pageContext.request.contextPath}/resources/logo.png" alt="ストックマスター ロゴ">
+    </div>
 
     <!-- マップ表示へ遷移 -->
     <form action="${pageContext.request.contextPath}/showmap" method="get">
@@ -104,6 +118,7 @@
 
     <!-- 店舗検索へ遷移 -->
     <form action="${pageContext.request.contextPath}/searchStore" method="get">
+    	<input type="hidden" name="guest" value="true">
       <button type="submit" class="secondary-btn">店舗の検索をする</button>
     </form>
 

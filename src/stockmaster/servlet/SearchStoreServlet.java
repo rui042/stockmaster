@@ -27,21 +27,40 @@ public class SearchStoreServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // ✅ セッション取得（ログインしてなくてもOK）
-        HttpSession session = req.getSession(false);
+    	HttpSession session = req.getSession(true);
+
+        // ゲストフラグを確認
+        String guestFlag = req.getParameter("guest");
         String username = null;
-        if (session != null) {
+
+        if ("true".equals(guestFlag)) {
+            // ログイン情報をリセットしてゲスト扱いにする
+            session.removeAttribute("loginUser");
+            session.removeAttribute("username");
+            session.removeAttribute("isStaff");
+            session.removeAttribute("chatHistory");
+            session.removeAttribute("currentStepKey");
+
+            session.setAttribute("isGuest", true);
+            username = "ゲスト";
+            // System.out.println("ゲストユーザーとして店舗検索にアクセス");
+        } else {
+            // 通常ログインユーザーを確認
             username = (String) session.getAttribute("username");
+            if (username != null) {
+                System.out.println("ログイン中ユーザー: " + username);
+            } else {
+                System.out.println("未ログインユーザーが店舗検索にアクセス");
+            }
         }
 
-        // 🔹 デバッグ表示（任意）
+        /** // デバッグ表示（任意）
         if (username != null) {
             System.out.println("ログイン中ユーザー: " + username);
         } else {
             System.out.println("未ログインユーザーが店舗検索にアクセス");
-        }
+        } */
 
-        String name = req.getParameter("name");
         String areaIdStr = req.getParameter("areaId");
 
         List<StoreBean> storeList = new ArrayList<>();
@@ -91,11 +110,10 @@ public class SearchStoreServlet extends HttpServlet {
         req.setAttribute("storeList", storeList);
         req.setAttribute("searched", true);
         req.setAttribute("areaId", areaIdStr); // 選択状態保持用
-
-        // 🔹 ログインしていれば名前を渡してヘッダーに表示できるように
+        // ログインしていれば名前を渡してヘッダーに表示
         req.setAttribute("username", username);
 
-        // 🔹 JSPにフォワード
+        // JSPにフォワード
         req.getRequestDispatcher("/views/searchStore.jsp").forward(req, resp);
     }
 }
