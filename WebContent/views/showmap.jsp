@@ -39,20 +39,20 @@
 <body>
   <jsp:include page="/views/_miniMenu.jsp" />
   <div class="page-wrap">
-    <div class="search-bar">
-      <form action="${pageContext.request.contextPath}/showMap" method="get">
-        <input type="hidden" name="storeId" value="${storeId}">
-        <input type="text" name="keyword" placeholder="商品検索" value="${keyword}">
-        <select name="category">
-          <option value="">すべての分類</option>
-          <option value="食品" <c:if test="${category eq '食品'}">selected</c:if>>食品</option>
-          <option value="飲料" <c:if test="${category eq '飲料'}">selected</c:if>>飲料</option>
-          <option value="日用品" <c:if test="${category eq '日用品'}">selected</c:if>>日用品</option>
-        </select>
-        <button type="submit">検索</button>
-      </form>
-      <p class="search-note">※ キーワード検索をするとカテゴリは無視されます。</p>
-    </div>
+   <div class="search-bar">
+  <form action="${pageContext.request.contextPath}/showMap" method="get">
+    <!-- storeId hidden は削除 -->
+    <input type="text" name="keyword" placeholder="商品検索" value="${keyword}">
+    <select name="category">
+      <option value="">すべての分類</option>
+      <option value="食品" <c:if test="${category eq '食品'}">selected</c:if>>食品</option>
+      <option value="飲料" <c:if test="${category eq '飲料'}">selected</c:if>>飲料</option>
+      <option value="日用品" <c:if test="${category eq '日用品'}">selected</c:if>>日用品</option>
+    </select>
+    <button type="submit">検索</button>
+  </form>
+  <p class="search-note">※ キーワード検索をするとカテゴリは無視されます。</p>
+</div>
 
     <h2>フロア図</h2>
     <p class="note">ピンをクリックすると棚情報を確認できます。</p>
@@ -95,7 +95,8 @@
                   </c:choose>
                 </td>
                 <td>
-                  <a class="shelf-link" href="${pageContext.request.contextPath}/showMap?storeId=${storeId}&shelfSeq=${item.shelfSeq}">この棚を表示</a>
+                  <!-- storeId パラメータは不要。セッションから取得するので shelfSeq のみ渡す -->
+                  <a class="shelf-link" href="${pageContext.request.contextPath}/showMap?shelfSeq=${item.shelfSeq}">この棚を表示</a>
                 </td>
               </tr>
             </c:forEach>

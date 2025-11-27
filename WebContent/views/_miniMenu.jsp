@@ -153,7 +153,7 @@
 
 	<!-- 共通機能 -->
     <!-- <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a> -->
-    <a href="${pageContext.request.contextPath}/selectStore" title="地図">Map</a>
+    <a href="${pageContext.request.contextPath}/showMap" title="地図">Map</a>
     <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
     <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
 

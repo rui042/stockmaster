@@ -217,7 +217,7 @@
   <main>
     <div class="menu-grid">
     <!-- 共通メニュー -->
-      <form action="selectStore" method="get">
+      <form action="showMap" method="get">
         <button class="menu-card" type="submit">
           <div class="icon">🗺️</div><div>マップ表示</div>
         </button>

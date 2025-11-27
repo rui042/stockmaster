@@ -13,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import stockmaster.bean.ShelfBean;
 import stockmaster.bean.StockBean;
@@ -27,8 +28,13 @@ public class ShowMapServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String storeIdStr = request.getParameter("storeId");
-        int storeId = (storeIdStr != null && !storeIdStr.isEmpty()) ? Integer.parseInt(storeIdStr) : 0;
+        HttpSession session = request.getSession(false);
+        Integer storeId = (session != null) ? (Integer) session.getAttribute("storeId") : null;
+
+        if (storeId == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
 
         String keyword = safe(request.getParameter("keyword"));
         String category = safe(request.getParameter("category"));
@@ -36,16 +42,15 @@ public class ShowMapServlet extends HttpServlet {
         int selectedShelfSeq = (selectedShelfSeqStr != null && !selectedShelfSeqStr.isEmpty())
                 ? Integer.parseInt(selectedShelfSeqStr) : -1;
 
-        request.setAttribute("storeId", storeId);
         request.setAttribute("keyword", keyword != null ? keyword : "");
         request.setAttribute("category", category != null ? category : "");
-        request.setAttribute("floorImage", request.getContextPath() + "/resources/floorplan.png");
+        // 店舗ごとにマップ画像を切り替え
+        request.setAttribute("floorImage", request.getContextPath() + "/resources/floorplan_" + storeId + ".png");
 
         StockDao stockDao = new StockDao();
         ShelfDao shelfDao = new ShelfDao();
 
-        boolean isInitial = (storeId == 0)
-                || ((keyword == null || keyword.isEmpty())
+        boolean isInitial = ((keyword == null || keyword.isEmpty())
                     && (category == null || category.isEmpty())
                     && selectedShelfSeq == -1);
 

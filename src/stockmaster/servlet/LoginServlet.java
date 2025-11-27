@@ -18,7 +18,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // 🔹 GETで来た場合はログイン画面を表示
+        // GETで来た場合はログイン画面を表示
         req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
     }
 
@@ -42,15 +42,18 @@ public class LoginServlet extends HttpServlet {
             // セッション作成
             HttpSession session = req.getSession(true);
 
-            // UserBean自体をセッションに保存（ログイン情報をまとめて持たせる）
+            // UserBean自体をセッションに保存
             session.setAttribute("loginUser", user);
 
-            //  旧仕様互換（必要なら残す）
+            // 旧仕様互換（必要なら残す）
             session.setAttribute("username", user.getName());
             session.setAttribute("isStaff", user.isStaff());
 
             // 管理者権限をセッションに保存
             session.setAttribute("isAdmin", user.isAdmin());
+
+            // ★ 店舗IDをセッションに保存
+            session.setAttribute("storeId", user.getStoreId());
 
             // メニュー画面にリダイレクト
             resp.sendRedirect(req.getContextPath() + "/menu");
