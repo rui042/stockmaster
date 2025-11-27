@@ -43,6 +43,23 @@
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
     }
 
+    h2 {
+		  position: relative;
+		  padding: 0.25em 0;
+		  font-weight: 700;
+		  color: #0b67c2;
+		  text-align: center;
+		}
+
+		h2:after {
+		  content: "";
+		  display: block;
+		  height: 4px;
+		  margin-top: 8px;
+		  background: linear-gradient(to right, rgb(255, 186, 115), #ffb2b2);
+		  border-radius: 2px;
+		}
+
     label {
       display: block;
       margin-top: 16px;
@@ -135,6 +152,8 @@
       <img src="${pageContext.request.contextPath}/resources/logo.png" alt="ストックマスター ロゴ">
     </div>
 
+    <h2>Login</h2>
+
     <!-- 🔹 ログインフォーム -->
     <form action="${pageContext.request.contextPath}/login" method="post">
       <label for="userId">ユーザーID</label>
@@ -151,18 +170,11 @@
       <div class="error">${error}</div>
     </c:if>
 
-    <!-- 🔹 新規登録フォーム -->
+    <!-- パスワードリセット -->
     <div class="footer-links">
-      <!-- <form action="${pageContext.request.contextPath}/register" method="get">
-        <button type="submit" class="register-btn">新規登録はこちら</button>
-      </form> -->
-      <p><a href="#">パスワードを忘れた？</a></p>
+      <p><a href="${pageContext.request.contextPath}/resetPassword">パスワードを忘れた？</a></p>
     </div>
 
-    <!-- 🔹 ログインせずに使用 -->
-	<!-- <div class="footer-links guest-access">
-	  <a href="${pageContext.request.contextPath}/menu?guest=true" class="guest-btn">ログインせずに使用する</a>
-	</div> -->
   </div>
 </body>
 </html>

@@ -44,13 +44,24 @@
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
     }
 
-    .welcome-box h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #0b67c2;
-      margin-bottom: 32px;
-      letter-spacing: 0.1em;
-    }
+		.welcome-box h1 {
+		  font-size: 2rem;
+		  font-weight: 700;
+		  color: #0b67c2;
+		  margin-bottom: 32px;
+		  letter-spacing: 0.1em;
+		  position: relative;
+		  padding: 0.25em 0;
+		}
+
+		.welcome-box h1:after {
+		  content: "";
+		  display: block;
+		  height: 4px;
+		  margin-top: 8px; /* 文字とバーの間に余白 */
+		  background: linear-gradient(to right, rgb(255, 186, 115), #ffb2b2);
+		  border-radius: 2px; /* 角を少し丸めると綺麗 */
+		}
 
     .welcome-box form {
       margin-bottom: 20px;
@@ -110,6 +121,8 @@
     <div class="logo">
       <img src="${pageContext.request.contextPath}/resources/logo.png" alt="ストックマスター ロゴ">
     </div>
+
+    <h1>Start</h1>
 
     <!-- マップ表示へ遷移 -->
     <form action="${pageContext.request.contextPath}/showmap" method="get">
