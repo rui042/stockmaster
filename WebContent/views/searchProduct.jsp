@@ -172,21 +172,21 @@
                   <td>${p.stockMin}</td>
                   <td>
 	                <!-- 入出荷履歴の詳細ボタン -->
-	                <form action="${pageContext.request.contextPath}/stockHistory" method="get">
-	                  <input type="hidden" name="itemId" value="${p.itemId}" />
-	                  <input type="hidden" name="storeId" value="${p.storeId}" />
-	                  <button type="submit" class="btn-history">詳細</button>
-	                </form>
-	              </td>
-                  <td>
-                    <!-- 更新ボタンのみ（履歴ボタンはここには置かない） -->
-  					<form action="${pageContext.request.contextPath}/updateItem" method="get">
-    				  <input type="hidden" name="itemId" value="${p.itemId}" />
-    				  <input type="hidden" name="itemName" value="${p.itemName}" />
-    				  <input type="hidden" name="price" value="${p.price}" />
-    				  <button type="submit" class="btn-update">更新</button>
-  					</form>
-				 </td>
+		                <form action="${pageContext.request.contextPath}/stockHistory" method="get">
+		                  <input type="hidden" name="itemId" value="${p.itemId}" />
+		                  <input type="hidden" name="storeId" value="${p.storeId}" />
+		                  <button type="submit" class="btn-history">詳細</button>
+		                </form>
+		              </td>
+	                  <td>
+	                    <!-- 更新ボタン -->
+				  					<form action="${pageContext.request.contextPath}/updateItem" method="get">
+				    				  <input type="hidden" name="itemId" value="${p.itemId}" />
+				    				  <input type="hidden" name="itemName" value="${p.itemName}" />
+				    				  <input type="hidden" name="price" value="${p.price}" />
+				    				  <button type="submit" class="btn-update">更新</button>
+				  					</form>
+								 </td>
                 </tr>
               </c:forEach>
             </tbody>

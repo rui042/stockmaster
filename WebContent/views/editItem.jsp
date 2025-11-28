@@ -17,14 +17,26 @@
       background:linear-gradient(90deg,var(--bg1),var(--bg2));
       margin:0;padding:0;
     }
-    .container {
-      max-width:500px;
-      margin:60px auto;
-      background:#fff;
-      padding:24px;
-      border-radius:12px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
     }
+    main {
+		  margin-left: 120px;   /* サイドメニュー分の余白 */
+		  padding-top: 80px;    /* ヘッダー分の余白 */
+		  display: block;       /* blockに変更 */
+		}
+    .container {
+		  flex: none;           /* flexの影響を受けない */
+		  width: 100%;          /* 横幅を確保 */
+		  max-width: 500px;
+		  margin: 60px auto;
+		  background: #fff;
+		  padding: 24px;
+		  border-radius: 12px;
+		  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+		}
     h2 {
       color:var(--primary);
       margin-bottom:20px;
@@ -34,6 +46,7 @@
       display:block;
       margin-bottom:12px;
       font-weight:bold;
+      font-size: 1rem;
     }
     input[type=text], input[type=number] {
       width:100%;
@@ -41,6 +54,7 @@
       border:1px solid #ccc;
       border-radius:8px;
       margin-top:4px;
+      font-size: 1rem;
     }
     button {
       margin-top:20px;
@@ -61,21 +75,29 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>商品情報の編集</h2>
-    <form action="updateItem" method="post">
-      <input type="hidden" name="itemId" value="${param.itemId}" />
-      <label>商品名
-        <input type="text" name="itemName" value="${param.itemName}" required />
-      </label>
-      <label>価格
-        <input type="number" name="price" value="${param.price}" min="0" required />
-      </label>
-      <button type="submit">更新する</button>
-    </form>
-    <c:if test="${not empty message}">
-      <div class="message">${message}</div>
-    </c:if>
-  </div>
+  <jsp:include page="_miniMenu.jsp" />
+  <div class="wrap">
+
+  	<main>
+		  <div class="container">
+
+		    <h2>商品情報の編集</h2>
+		    <form action="updateItem" method="post">
+		      <input type="hidden" name="itemId" value="${param.itemId}" />
+		      <label>商品名
+		        <input type="text" name="itemName" value="${param.itemName}" required />
+		      </label>
+		      <label>価格
+		        <input type="number" name="price" value="${param.price}" min="0" required />
+		      </label>
+		      <button type="submit">更新する</button>
+		    </form>
+		    <c:if test="${not empty message}">
+		      <div class="message">${message}</div>
+		    </c:if>
+
+		  </div>
+		</main>
+	</div>
 </body>
 </html>
