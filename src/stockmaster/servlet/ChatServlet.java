@@ -25,6 +25,10 @@ public class ChatServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
+	  	// 文字コード指定
+	    req.setCharacterEncoding("UTF-8");
+	    resp.setContentType("text/html; charset=UTF-8");
+
 	  // ログインチェック
 	  HttpSession session = req.getSession(false);
 	  if (session == null || session.getAttribute("loginUser") == null) {
@@ -44,7 +48,11 @@ public class ChatServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-	// ログインチェック
+	  	// 文字コード指定
+	    req.setCharacterEncoding("UTF-8");
+	    resp.setContentType("text/html; charset=UTF-8");
+
+	  // ログインチェック
 	  HttpSession session = req.getSession(false);
 	  if (session == null || session.getAttribute("loginUser") == null) {
 	      resp.sendRedirect(req.getContextPath() + "/login");
@@ -109,8 +117,8 @@ public class ChatServlet extends HttpServlet {
   private String findNextStepKey(String currentStepKey, String inputValue) {
     String nextStepKey = null;
     String sql = "SELECT c.NEXT_STEP_KEY FROM CHAT_CHOICES c " +
-                 "JOIN CHAT_STEPS s ON c.STEP_ID = s.STEP_ID " +
-                 "WHERE s.STEP_KEY = ? AND c.INPUT_VALUE = ?";
+            "JOIN CHAT_STEPS s ON c.STEP_ID = s.STEP_ID " +
+            "WHERE s.STEP_KEY = ? AND ? LIKE CONCAT('%', c.INPUT_VALUE, '%')";
 
     // デバッグログ確認用
 //     System.out.println("DEBUG: Executing SQL for STEP_KEY=" + currentStepKey + " and INPUT_VALUE=" + inputValue);
