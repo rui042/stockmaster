@@ -44,58 +44,56 @@
       border:1px solid #e6eef6;
       border-radius:10px;
       padding:12px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.04)
+      box-shadow:0 8px 20px rgba(0,0,0,0.04);
     }
 
-    .messages{
-      height:380px;
-      overflow:auto;
-      padding:12px;
-      background:linear-gradient(180deg,#fff,#fbfeff);
-      border-radius:8px
+		.messages {
+		  height: 380px;
+		  overflow: auto;
+		  padding: 12px;
+		  background: linear-gradient(180deg,#fff,#fbfeff);
+		  border-radius: 8px;
+		  display: flex;
+		  flex-direction: column;
+		  gap: 6px;
+		}
 
-      /* メッセージを縦に積み上げる */
-	  display: flex;
-	  flex-direction: column;
-	  gap: 6px;
-    }
+		.bubble {
+		  display: inline-block;
+		  padding: 10px 12px;
+		  border-radius: 12px;
+		  margin-top: 8px;
+		  max-width: 72%;
+		  word-break: break-word;
+		}
 
-    .bubble{
-      display:inline-block;
-      padding:10px 12px;
-      border-radius:12px;
-      margin-top:8px;
-      max-width:72%;
-      word-break:break-word
-    }
+		.bubble.me {
+		  background: linear-gradient(90deg,#1572a1,#0e5a7e);
+		  color: #fff;
+		  margin-left: auto;
+		  border-bottom-right-radius: 4px;
+		  text-align: right;
+		}
 
-    .bubble.me{
-      background:linear-gradient(90deg,#1572a1,#0e5a7e);
-      color:#fff;
-      margin-left:auto;
-      border-bottom-right-radius:4px
-      text-align: right;
-    }
-
-    .bubble.you{
-      background:#f1f7fb;
-      color:#213547;
-      margin-right: auto;
-      border-bottom-left-radius:4px
-      text-align: left;
-    }
+		.bubble.you {
+		  background: #f1f7fb;
+		  color: #213547;
+		  margin-right: auto;
+		  border-bottom-left-radius: 4px;
+		  text-align: left;
+		}
 
     .input-row{
       display:flex;
       gap:8px;
-      margin-top:10px
+      margin-top:10px:
     }
 
     .input{
       flex:1;
       padding:10px;
       border-radius:10px;
-      border:1px solid #d7e7f0
+      border:1px solid #d7e7f0:
     }
 
     .btn{
@@ -104,22 +102,22 @@
       border:0;
       background:var(--accent);
       color:#fff;
-      cursor:pointer
+      cursor:pointer:
     }
 
     .delete-btn {
-	  background: #6b7c8a; /* mutedカラーを使用 */
-	  color: #fff;
-	  padding: 10px 14px;
-	  border-radius: 10px;
-	  border: 0;
-	  cursor: pointer;
-	  transition: background 0.3s ease;
-	}
+		  background: #6b7c8a;
+		  color: #fff;
+		  padding: 10px 14px;
+		  border-radius: 10px;
+		  border: 0;
+		  cursor: pointer;
+		  transition: background 0.3s ease;
+		}
 
-	.delete-btn:hover {
-	  background: #4e5d6a;
-	}
+		.delete-btn:hover {
+		  background: #4e5d6a;
+		}
   </style>
 </head>
 <body>
@@ -130,16 +128,16 @@
       <div id="messages" class="messages" aria-live="polite">
         <div class="bubble you">
           こんにちは！こちらはチャット相談ページです。<br/>
-		  現在次のことに対応しております。該当する番号を入力してください。<br/>
-		  1:商品に関する案内<br/>
-		  2:サポート
-		</div>
-        <c:forEach var="entry" items="${sessionScope.chatHistory}">
-	    <div class="bubble ${entry[0]}">
-	      <c:out value="${entry[0] == 'me' ? '自分: ' : '相手: '}" />
-	      <c:out value="${entry[1]}" />
-	    </div>
-	  </c:forEach>
+				  現在次のことに対応しております。該当する番号を入力してください。<br/>
+				  1:商品に関する案内<br/>
+				  2:サポート
+				</div>
+		      <c:forEach var="entry" items="${sessionScope.chatHistory}">
+			    <div class="bubble ${entry[0]}">
+			      <c:out value="${entry[0] == 'me' ? '自分: ' : '相手: '}" />
+			      <c:out value="${entry[1]}" />
+			    </div>
+			  </c:forEach>
       </div>
 
       <form method="post" action="chat" class="input-row">
@@ -152,8 +150,22 @@
     </div>
   </div>
 
-  <script>
-    document.getElementById('chatInput').focus();
-  </script>
+	<script>
+	  document.getElementById('chatInput').focus();
+
+	  // 最新メッセージまでスクロール
+	  function scrollToBottom() {
+	    const messages = document.querySelector('.messages');
+	    if (messages) {
+	      messages.scrollTop = messages.scrollHeight;
+	    }
+	  }
+
+	  // ページロード時にスクロール
+	  window.addEventListener('load', scrollToBottom);
+
+	  // DOM構築完了時にもスクロール
+	  window.addEventListener('DOMContentLoaded', scrollToBottom);
+	</script>
 </body>
 </html>
