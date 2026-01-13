@@ -12,12 +12,13 @@ public class ShelfBean implements Serializable {
     private String note;      // 備考
 
     // 座標情報（フロア図上の位置 %）
-    private Integer xPct;     // X座標（%）
-    private Integer yPct;     // Y座標（%）
+    private Double xPct;     // X座標（%）
+    private Double yPct;     // Y座標（%）
 
     public ShelfBean() {}
 
-    public ShelfBean(int shelfSeq, String shelfId, String location, int storeId, String category, String note, Integer xPct, Integer yPct) {
+    public ShelfBean(int shelfSeq, String shelfId, String location, int storeId,
+                     String category, String note, Double xPct, Double yPct) {
         this.shelfSeq = shelfSeq;
         this.shelfId = shelfId;
         this.location = location;
@@ -32,7 +33,7 @@ public class ShelfBean implements Serializable {
         this.shelfId = shelfId;
         this.location = location;
         this.storeId = storeId;
-        this.category = category;
+               this.category = category;
         this.note = note;
     }
 
@@ -54,12 +55,11 @@ public class ShelfBean implements Serializable {
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
 
-    // EL式対応: getter/setter 名は必ず XPct / YPct の大文字始まり
-    public Integer getXPct() { return xPct; }
-    public void setXPct(Integer xPct) { this.xPct = xPct; }
+    public Double getXPct() { return xPct; }
+    public void setXPct(Double xPct) { this.xPct = xPct; }
 
-    public Integer getYPct() { return yPct; }
-    public void setYPct(Integer yPct) { this.yPct = yPct; }
+    public Double getYPct() { return yPct; }
+    public void setYPct(Double yPct) { this.yPct = yPct; }
 
     @Override
     public String toString() {

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.RequestDispatcher;
@@ -42,43 +41,50 @@ public class ShowMapServlet extends HttpServlet {
         int selectedShelfSeq = (selectedShelfSeqStr != null && !selectedShelfSeqStr.isEmpty())
                 ? Integer.parseInt(selectedShelfSeqStr) : -1;
 
+        // クリック座標
+        String xStr = safe(request.getParameter("xPct"));
+        String yStr = safe(request.getParameter("yPct"));
+        Double clickX = (xStr != null && !xStr.isEmpty()) ? Double.parseDouble(xStr) : null;
+        Double clickY = (yStr != null && !yStr.isEmpty()) ? Double.parseDouble(yStr) : null;
+
         request.setAttribute("keyword", keyword != null ? keyword : "");
         request.setAttribute("category", category != null ? category : "");
-        // 店舗ごとにマップ画像を切り替え
-        request.setAttribute("floorImage", request.getContextPath() + "/resources/floorplan_" + storeId + ".png");
+        request.setAttribute("floorImage",
+                request.getContextPath() + "/resources/floorplan_" + storeId + ".png");
 
         StockDao stockDao = new StockDao();
         ShelfDao shelfDao = new ShelfDao();
 
         boolean isInitial = ((keyword == null || keyword.isEmpty())
-                    && (category == null || category.isEmpty())
-                    && selectedShelfSeq == -1);
+                && (category == null || category.isEmpty())
+                && selectedShelfSeq == -1
+                && clickX == null && clickY == null);
 
         List<StockBean> itemList = new ArrayList<>();
         List<ShelfBean> shelfList = new ArrayList<>();
         List<ShelfBean> hotspots = new ArrayList<>();
         ShelfBean selectedShelf = null;
-        int resultCount = 0;
 
         if (!isInitial) {
-            // 商品検索（キーワード優先）
+
+            // 商品検索
             if (keyword != null && !keyword.isEmpty()) {
                 itemList = stockDao.findByStoreAndKeyword(storeId, keyword);
             } else {
                 itemList = stockDao.findByStore(storeId);
             }
 
-            // 棚一覧取得（SEQ順に並べ替え）
+            // 棚一覧（店舗限定）
             shelfList = shelfDao.findByStore(storeId).stream()
-                .sorted((a, b) -> Integer.compare(a.getShelfSeq(), b.getShelfSeq()))
-                .collect(Collectors.toList());
+                    .sorted((a, b) -> Integer.compare(a.getShelfSeq(), b.getShelfSeq()))
+                    .collect(Collectors.toList());
             request.setAttribute("shelfList", shelfList);
 
-            // shelfMap を shelfSeq ベースに変更
+            // shelfSeq → ShelfBean のマップ
             Map<Integer, ShelfBean> shelfMap = shelfList.stream()
                     .collect(Collectors.toMap(ShelfBean::getShelfSeq, s -> s));
 
-            // カテゴリ指定がある場合は棚ジャンルでフィルタ
+            // カテゴリフィルタ
             if ((keyword == null || keyword.isEmpty()) && category != null && !category.isEmpty()) {
                 itemList = itemList.stream()
                         .filter(item -> {
@@ -88,7 +94,7 @@ public class ShowMapServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // SHELF_SEQ指定がある場合はその棚の商品だけに絞る
+            // 棚SEQ指定
             if (selectedShelfSeq != -1) {
                 selectedShelf = shelfMap.get(selectedShelfSeq);
                 itemList = itemList.stream()
@@ -96,26 +102,39 @@ public class ShowMapServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // ★ StockBean に棚情報を埋め込む
-            for (StockBean item : itemList) {
-                ShelfBean shelf = shelfMap.get(item.getShelfSeq());
-                if (shelf != null) {
-                    item.setGenre(shelf.getCategory());   // 棚のカテゴリをセット
-                    item.setShelfId(shelf.getShelfId()); // 表示用棚番号をセット
+            // クリック座標 → 最寄り棚
+            if (selectedShelf == null && clickX != null && clickY != null) {
+                selectedShelf = shelfDao.findNearestShelf(storeId, clickX, clickY);
+
+                if (selectedShelf != null) {
+                    int seq = selectedShelf.getShelfSeq();
+                    itemList = itemList.stream()
+                            .filter(item -> item.getShelfSeq() == seq)
+                            .collect(Collectors.toList());
                 }
             }
 
-            resultCount = itemList.size();
-            request.setAttribute("itemList", itemList);
-            request.setAttribute("resultCount", resultCount);
+            // StockBean に棚情報を埋め込む
+            for (StockBean item : itemList) {
+                ShelfBean shelf = shelfMap.get(item.getShelfSeq());
+                if (shelf != null) {
+                    item.setGenre(shelf.getCategory());
+                    item.setShelfId(shelf.getShelfId());
+                }
+            }
 
-            // 検索結果の棚だけピン表示
+            request.setAttribute("itemList", itemList);
+            request.setAttribute("resultCount", itemList.size());
+
+            // ピン（検索結果の棚）
             hotspots = itemList.stream()
                     .map(item -> shelfMap.get(item.getShelfSeq()))
-                    .filter(Objects::nonNull)
+                    .filter(shelf -> shelf != null)
                     .collect(Collectors.toList());
+
             request.setAttribute("hotspots", hotspots);
             request.setAttribute("selectedShelf", selectedShelf);
+
         } else {
             request.setAttribute("itemList", null);
             request.setAttribute("resultCount", 0);

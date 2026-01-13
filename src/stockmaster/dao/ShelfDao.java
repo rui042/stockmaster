@@ -10,7 +10,7 @@ import stockmaster.bean.ShelfBean;
 
 public class ShelfDao extends Dao {
 
-    // 🔹 棚テーブルの全件取得
+    // 全件取得
     public List<ShelfBean> findAll() {
         List<ShelfBean> list = new ArrayList<>();
         String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF";
@@ -21,15 +21,15 @@ public class ShelfDao extends Dao {
 
             while (rs.next()) {
                 ShelfBean shelf = new ShelfBean(
-                    rs.getString("SHELF_ID"),
-                    rs.getString("LOCATION"),
-                    rs.getInt("STORE_ID"),
-                    rs.getString("CATEGORY"),
-                    rs.getString("NOTE")
+                        rs.getString("SHELF_ID"),
+                        rs.getString("LOCATION"),
+                        rs.getInt("STORE_ID"),
+                        rs.getString("CATEGORY"),
+                        rs.getString("NOTE")
                 );
-                shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
-                shelf.setXPct(rs.getInt("X_PCT"));
-                shelf.setYPct(rs.getInt("Y_PCT"));
+                shelf.setShelfSeq(rs.getInt("SHELF_SEQ"));
+                shelf.setXPct(rs.getDouble("X_PCT"));
+                shelf.setYPct(rs.getDouble("Y_PCT"));
 
                 list.add(shelf);
             }
@@ -41,7 +41,7 @@ public class ShelfDao extends Dao {
         return list;
     }
 
-    // 🔹 店舗IDで棚を検索
+    // 店舗IDで棚取得
     public List<ShelfBean> findByStore(int storeId) {
         List<ShelfBean> list = new ArrayList<>();
         String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE STORE_ID = ?";
@@ -54,15 +54,15 @@ public class ShelfDao extends Dao {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     ShelfBean shelf = new ShelfBean(
-                        rs.getString("SHELF_ID"),
-                        rs.getString("LOCATION"),
-                        rs.getInt("STORE_ID"),
-                        rs.getString("CATEGORY"),
-                        rs.getString("NOTE")
+                            rs.getString("SHELF_ID"),
+                            rs.getString("LOCATION"),
+                            rs.getInt("STORE_ID"),
+                            rs.getString("CATEGORY"),
+                            rs.getString("NOTE")
                     );
-                    shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
-                    shelf.setXPct(rs.getInt("X_PCT"));
-                    shelf.setYPct(rs.getInt("Y_PCT"));
+                    shelf.setShelfSeq(rs.getInt("SHELF_SEQ"));
+                    shelf.setXPct(rs.getDouble("X_PCT"));
+                    shelf.setYPct(rs.getDouble("Y_PCT"));
 
                     list.add(shelf);
                 }
@@ -75,35 +75,28 @@ public class ShelfDao extends Dao {
         return list;
     }
 
-    // 🔹 棚IDで1件取得（検索結果から棚座標を使う場合に便利）
-    public ShelfBean findById(String shelfId) {
-        ShelfBean shelf = null;
-        String sql = "SELECT SHELF_SEQ, SHELF_ID, LOCATION, STORE_ID, CATEGORY, NOTE, X_PCT, Y_PCT FROM SHELF WHERE SHELF_ID = ?";
+    // 最寄り棚（storeId 限定）
+    public ShelfBean findNearestShelf(int storeId, Double xPct, Double yPct) {
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        if (xPct == null || yPct == null) return null;
 
-            stmt.setString(1, shelfId);
+        List<ShelfBean> shelves = findByStore(storeId);
+        ShelfBean nearest = null;
+        double minDist = Double.MAX_VALUE;
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    shelf = new ShelfBean(
-                        rs.getString("SHELF_ID"),
-                        rs.getString("LOCATION"),
-                        rs.getInt("STORE_ID"),
-                        rs.getString("CATEGORY"),
-                        rs.getString("NOTE")
-                    );
-                    shelf.setShelfSeq(rs.getInt("SHELF_SEQ")); // 🔹 追加
-                    shelf.setXPct(rs.getInt("X_PCT"));
-                    shelf.setYPct(rs.getInt("Y_PCT"));
+        for (ShelfBean shelf : shelves) {
+            if (shelf.getXPct() != null && shelf.getYPct() != null) {
+
+                double dx = shelf.getXPct() - xPct;
+                double dy = shelf.getYPct() - yPct;
+                double dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = shelf;
                 }
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        return shelf;
+        return nearest;
     }
 }
