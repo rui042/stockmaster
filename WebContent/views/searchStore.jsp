@@ -157,10 +157,21 @@
     .store-item a:hover {
     	text-decoration:underline;
     }
+
+    /* ▼ スマホ時は miniMenu が無いので main を中央に戻す ▼ */
+		@media (max-width: 640px) {
+		  main {
+		    margin-left: 0 !important;
+		    padding: 16px !important;
+		  }
+		}
   </style>
 </head>
 <body>
-  <jsp:include page="_miniMenu.jsp" />
+  <c:if test="${not empty sessionScope.username}">
+      <jsp:include page="_miniMenu.jsp" />
+  </c:if>
+
   <div class="wrap">
 
     <main>
@@ -196,6 +207,8 @@
                     </c:otherwise>
                   </c:choose>
                   <br/>
+                  <a href="showMap?storeId=${store.storeId}">店舗マップを表示</a>
+                  &nbsp;|&nbsp;
                   <a href="storeDetail?id=${store.storeId}">詳細を見る</a>
                 </div>
               </c:forEach>

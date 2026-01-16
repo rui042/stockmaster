@@ -8,14 +8,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
   <style>
-    :root{--muted:#6b7c8a;--accent:#1572a1}
-    body{margin:0;font-family:"Yu Gothic","Segoe UI",system-ui,-apple-system,sans-serif;color:#213547}
+    :root{
+    	--muted:#6b7c8a;
+    	--accent:#1572a1
+    }
 
-    .page-wrap{max-width:1100px;margin:40px auto;padding:16px;margin-left:140px;position:relative;}
-    @media (max-width:640px){.page-wrap{margin-left:16px;margin-top:88px}}
+    body{
+    	margin:0;
+    	font-family:"Yu Gothic","Segoe UI",system-ui,-apple-system,sans-serif;
+    	color:#213547
+    }
 
-    h2{margin:0 0 8px}
-    .note{color:var(--muted);margin-bottom:10px}
+    .page-wrap{
+    	max-width:1100px;
+    	margin:40px auto;
+    	padding:16px;
+    	margin-left:140px;
+    	position:relative;
+    }
+
+    @media (max-width:640px){
+    	.page-wrap{
+    		margin-left:16px;
+    		margin-top:88px
+    	}
+    }
+
+    h2{
+    	margin:0 0 8px
+    }
+
+    .note{
+    	color:var(--muted);
+    	margin-bottom:10px
+    }
 
     /* ★★★ 画像とピンのズレを完全解消するための構造 ★★★ */
     .img-box{
@@ -54,8 +80,16 @@
       transition:transform 0.2s ease;
       z-index:5;
     }
-    .pin.red{background:red;z-index:10;}
-    .pin:hover{transform:translate(-50%,-100%) scale(1.2);background:#0e4e74;}
+
+    .pin.red{
+    	background:red;
+    	z-index:10;
+    }
+
+    .pin:hover{
+    	transform:translate(-50%,-100%) scale(1.2);
+    	background:#0e4e74;
+    }
 
     .pin-label{
       position:absolute;
@@ -70,34 +104,202 @@
       pointer-events:none;
       z-index:20;
     }
-    .pin:hover + .pin-label{display:block;}
 
-    .shelf-info{margin-top:24px;border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
-    .shelf-info th,.shelf-info td{padding:12px 16px;border-bottom:1px solid #e6eef6;text-align:left;}
-    .shelf-info th{background:#f8fafc;color:#1572a1;font-weight:bold;}
-    .shelf-info tr:last-child td{border-bottom:none;}
+    .pin:hover + .pin-label{
+    	display:block;
+    }
 
-    .search-bar{position:absolute;top:0;right:0;margin:16px;}
-    .search-bar form{display:flex;gap:6px;align-items:center;}
-    .search-bar input[type=text],.search-bar select{padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;}
-    .search-bar button{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;}
-    .search-bar button:hover{opacity:0.9;}
+    .shelf-info{
+    	margin-top:24px;
+    	border-collapse:collapse;
+    	width:100%;background:#fff;
+    	border-radius:8px;overflow:hidden;
+    	box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    }
 
-    .highlight{color:green;font-weight:bold;}
-    .out-of-stock{color:red;font-weight:bold;}
-    .low-stock{color:orange;font-weight:bold;}
-    .search-note{margin-top:8px;font-size:0.9em;color:#666;}
-    .shelf-link{color:#1572a1;text-decoration:underline;cursor:pointer;}
+    .shelf-info th,.shelf-info td{
+    	padding:12px 16px;
+    	border-bottom:1px solid #e6eef6;
+    	text-align:left;
+    }
+
+    .shelf-info th{
+	    background:#f8fafc;
+	    color:#1572a1;
+	    font-weight:bold;
+	   }
+
+    .shelf-info tr:last-child td{
+    	border-bottom:none;
+    }
+
+    .search-bar{
+    	position:absolute;
+    	top:0;
+    	right:0;
+    	margin:16px;
+    }
+
+    .search-bar form{
+    	display:flex;
+    	gap:6px;
+    	align-items:center;
+    }
+
+    .search-bar input[type=text],.search-bar select{
+    	padding:6px 10px;
+    	border:1px solid #ccc;
+    	border-radius:6px;
+    	font-size:0.95rem;
+    }
+
+    .search-bar button{
+    	padding:6px 12px;
+    	background:var(--accent);
+    	color:#fff;border:none;
+    	border-radius:6px;
+    	cursor:pointer;
+    	font-weight:600;
+    }
+
+    .search-bar button:hover{
+    	opacity:0.9;
+    }
+
+    .highlight{
+    	color:green;
+    	font-weight:bold;
+    }
+
+    .out-of-stock{
+    	color:red;
+    	font-weight:bold;
+    }
+
+    .low-stock{
+    	color:orange;
+    	font-weight:bold;
+    }
+
+    .search-note{
+    	margin-top:8px;
+    	font-size:0.9em;
+    	color:#666;
+    }
+
+    .shelf-link{
+    	color:#1572a1;
+    	text-decoration:underline;
+    	cursor:pointer;
+    }
+
+    /*「店舗検索へ戻る」ボタン */
+		.return-btn-wrap {
+		  text-align: left;
+		  margin-top: 12px;
+		}
+
+		.return-btn {
+		  padding: 8px 16px;
+		  background: var(--accent);
+		  color: #fff;
+		  border: none;
+		  border-radius: 6px;
+		  cursor: pointer;
+		  font-weight: 600;
+		}
+
+		.return-btn:hover {
+		  opacity: 0.9;
+		}
+
+		/* ページトップへ戻るボタン */
+		#scrollTopBtn {
+		  position: fixed;
+		  bottom: 20px;
+		  right: 24px;
+			left: auto;
+		  width: 56px;
+			height: 56px;
+			font-size: 26px;
+		  background: #b1dcfc;
+		  background: rgba(217, 236, 247, 0.85);
+		  color: #000;
+		  border-radius: 50%;
+		  display: flex;
+		  justify-content: center;
+		  align-items: center;
+		  font-size: 22px;
+		  font-weight: bold;
+		  cursor: pointer;
+		  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+		  opacity: 0;
+		  pointer-events: none;
+		  transition: opacity 0.3s ease;
+		  z-index: 999;
+		}
+
+		/* 表示状態 */
+		#scrollTopBtn.show {
+		  opacity: 1;
+		  pointer-events: auto;
+		}
+
+    /* ▼ スマホ時の検索バー配置を完全に上書き（最優先） ▼ */
+		@media (max-width: 640px) {
+		  .search-bar {
+		    position: static !important;
+		    top: auto !important;
+		    right: auto !important;
+		    margin: 12px 0 4px 0 !important;
+		    width: 100% !important;
+		    text-align: left !important;
+		  }
+
+		  .search-bar form {
+		    flex-direction: column !important;
+		    align-items: flex-start !important;
+		    width: 100% !important;
+		    gap: 8px !important;
+		  }
+
+		  .search-bar input[type=text],
+		  .search-bar select,
+		  .search-bar button {
+		    width: 100% !important;
+		  }
+
+		  h2 {
+		    margin-top: 0 !important;
+		    padding-top: 8px !important;
+		  }
+
+		  .search-note {
+		    margin: 4px 0 16px 0 !important;
+		    text-align: left !important;
+		  }
+
+		  .page-wrap {
+		    margin-left: 0 !important;
+		    padding: 16px !important;
+		  }
+		}
   </style>
 </head>
 
 <body>
-  <jsp:include page="/views/_miniMenu.jsp" />
+  <c:if test="${not empty sessionScope.storeId}">
+    <jsp:include page="/views/_miniMenu.jsp" />
+	</c:if>
 
   <div class="page-wrap">
 
+  	<h2>フロア図</h2>
+    <p class="note">ピンまたはマップをクリックすると棚情報を確認できます。</p>
+
     <div class="search-bar">
       <form action="${pageContext.request.contextPath}/showMap" method="get">
+      	<input type="hidden" name="storeId" value="${storeId}">
         <input type="text" name="keyword" placeholder="商品検索" value="${keyword}">
         <select name="category">
           <option value="">すべての分類</option>
@@ -109,9 +311,6 @@
       </form>
       <p class="search-note">※ キーワード検索をするとカテゴリは無視されます。</p>
     </div>
-
-    <h2>フロア図</h2>
-    <p class="note">ピンまたはマップをクリックすると棚情報を確認できます。</p>
 
     <!-- ★★★ 画像とピンを同じ wrapper 内に配置 ★★★ -->
     <div class="img-box">
@@ -170,7 +369,7 @@
                   </c:choose>
                 </td>
                 <td>
-                  <a class="shelf-link" href="${pageContext.request.contextPath}/showMap?shelfSeq=${item.shelfSeq}">
+                  <a class="shelf-link" href="${pageContext.request.contextPath}/showMap?storeId=${storeId}&shelfSeq=${item.shelfSeq}">
                     この棚を表示
                   </a>
                 </td>
@@ -192,6 +391,15 @@
       </c:otherwise>
     </c:choose>
 
+    <div class="return-btn-wrap">
+		  <form action="${pageContext.request.contextPath}/searchStore" method="get">
+		    <input type="hidden" name="storeId" value="${storeId}">
+		    <button type="submit" class="return-btn">店舗検索</button>
+		  </form>
+		</div>
+
+		<div id="scrollTopBtn">∧</div>
+
   </div>
 
   <!-- ★★★ JS：クリック座標は wrapper 基準で取得 ★★★ -->
@@ -200,6 +408,7 @@
     const ctx = '<%= request.getContextPath() %>';
     const floorImg = document.getElementById("floorImg");
     const wrapper = document.getElementById("imgWrapper");
+    const scrollBtn = document.getElementById("scrollTopBtn");
 
     // 画像クリック
     floorImg.addEventListener("click", (e) => {
@@ -211,7 +420,7 @@
       yPct = Math.round(yPct);
 
       console.log("画像クリック座標:", xPct, yPct);
-      window.location.href = ctx + "/showMap?xPct=" + xPct + "&yPct=" + yPct;
+      window.location.href = ctx + "/showMap?storeId=${storeId}&xPct=" + xPct + "&yPct=" + yPct;;
     });
 
     // ピンクリック
@@ -222,9 +431,25 @@
         let y = Math.round(parseFloat(pin.dataset.y));
 
         console.log("ピンクリック座標:", x, y);
-        window.location.href = ctx + "/showMap?xPct=" + x + "&yPct=" + y;
+        window.location.href = ctx + "/showMap?storeId=${storeId}&xPct=" + x + "&yPct=" + y;;
       });
     });
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        scrollBtn.classList.add("show");
+      } else {
+        scrollBtn.classList.remove("show");
+      }
+    });
+
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+
   });
   </script>
 

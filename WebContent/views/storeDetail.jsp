@@ -6,8 +6,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8"/>
   <title>店舗情報</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
       --primary: #0b67c2;
@@ -36,14 +36,6 @@
       min-height:100%;
       display:flex;
       flex-direction:column;
-    }
-
-    main {
-      flex:1;
-      margin-left:120px;
-      padding-top:80p;
-      padding:20px;
-      max-width:960px;
     }
 
     main {
@@ -194,7 +186,7 @@
       font-weight: bold;
     }
 
-    .back-link {
+    .map-link {
       text-align: ;
       margin-top: 20px;
     }
@@ -212,10 +204,91 @@
       color: #555;
       margin-top: 4px;
     }
+
+    /* 戻るリンクを中央寄せ */
+	  .map-link {
+	    text-align: center !important;
+	    margin-top: 24px !important;
+	  }
+
+	  .map-link a {
+	    display: inline-block;
+	    padding: 10px 20px;
+	    background: var(--btn-hover-bg);
+	    color: #fff;
+	    border-radius: 12px;
+	    text-decoration: none;
+	    font-weight: 600;
+	  }
+
+	  .return-left {
+		  bottom: 20px;
+		  left: 20px;
+		  z-index: 999;
+		}
+
+		.return-left a {
+		  display: inline-block;
+		  padding: 10px 14px;
+		  background: var(--btn-hover-bg);
+		  color: #fff;
+		  border-radius: 10px;
+		  text-decoration: none;
+		  font-weight: 600;
+		}
+
+    /* ▼ スマホ最適化（幅640px以下） ▼ */
+		@media (max-width: 640px) {
+
+		  /* main を中央寄せに */
+		  main {
+		    margin-left: 0 !important;
+		    padding: 16px !important;
+		    max-width: 100% !important;
+		  }
+
+		  /* テーブルをカード型に変換 */
+		  table.shelf-info {
+		    width: 100%;
+		    border: none;
+		    box-shadow: none;
+		  }
+
+		  table.shelf-info tr {
+		    display: block;
+		    margin-bottom: 16px;
+		    border: 1px solid #ccc;
+		    border-radius: 12px;
+		    padding: 12px;
+		    background: #fff;
+		  }
+
+		  table.shelf-info th {
+		    display: block;
+		    width: 100% !important;
+		    background: none;
+		    border: none;
+		    padding: 4px 0;
+		    font-size: 0.9rem;
+		    color: #666;
+		  }
+
+		  table.shelf-info td {
+		    display: block;
+		    width: 100%;
+		    border: none;
+		    padding: 6px 0 10px;
+		    font-size: 1.1rem;
+		    font-weight: 600;
+		    color: #19324a;
+		  }
+		}
   </style>
 </head>
 <body>
-  <jsp:include page="_miniMenu.jsp" />
+  <c:if test="${not empty sessionScope.username}">
+    <jsp:include page="_miniMenu.jsp" />
+	</c:if>
   <div class="wrap">
 
   	<main>
@@ -258,9 +331,15 @@
 	      </tbody>
 	    </table>
 
-	    <div class="back-link">
-	      <a href="searchStore">店舗一覧に戻る</a>
-	    </div>
+			<div class="map-link">
+			  <a href="${pageContext.request.contextPath}/showMap?storeId=${store.storeId}">
+			    マップを表示する
+			  </a>
+			</div>
+
+	    <div class="return-left">
+			  <a href="searchStore">←</a>
+			</div>
 		</main>
   </div>
 </body>

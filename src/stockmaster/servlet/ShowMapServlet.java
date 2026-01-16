@@ -28,12 +28,33 @@ public class ShowMapServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        Integer storeId = (session != null) ? (Integer) session.getAttribute("storeId") : null;
+        Integer storeId = null;
 
+        // 従業員ログイン時（セッションから取得）
+        if (session != null) {
+            storeId = (Integer) session.getAttribute("storeId");
+        }
+
+        // お客様アクセス時（パラメータから取得）
         if (storeId == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            String storeIdStr = request.getParameter("storeId");
+            if (storeIdStr != null && !storeIdStr.isEmpty()) {
+                try {
+                    storeId = Integer.parseInt(storeIdStr);
+                } catch (NumberFormatException e) {
+                    storeId = null;
+                }
+            }
+        }
+
+        // storeId がどちらも取得できなければエラー
+        if (storeId == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "storeId が指定されていません。");
             return;
         }
+
+        // JSP に渡す
+        request.setAttribute("storeId", storeId);
 
         String keyword = safe(request.getParameter("keyword"));
         String category = safe(request.getParameter("category"));
