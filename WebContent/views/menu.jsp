@@ -188,10 +188,7 @@
   <header>
     <!-- 左 -->
     <div class="notice-area">
-      <button type="button" class="notice-btn" onclick="openModal()">
-        <span class="notice-badge">${requestScope.noticeCount != null ? requestScope.noticeCount : "2"}</span>
-        <span class="notice-label">お知らせ</span>
-      </button>
+
     </div>
 
     <!-- 中央 -->
