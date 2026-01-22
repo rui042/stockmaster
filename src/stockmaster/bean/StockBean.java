@@ -12,9 +12,8 @@ public class StockBean implements Serializable {
     private int stockNow;      // 現在の在庫数
     private int stockMin;      // 最低在庫数
     private int price;         // 価格（ITEMSテーブルから取得）
-
-    // 表示用の棚番号（DBには無いが ShelfBean から埋め込む）
-    private String shelfId;
+    private String shelfId;		// 棚番号
+    private String category;	// 棚の分類
 
     // コンストラクタ
     public StockBean() {}
@@ -31,41 +30,94 @@ public class StockBean implements Serializable {
     }
 
     // Getter / Setter
-    public String getItemId() { return itemId; }
-    public void setItemId(String itemId) { this.itemId = itemId; }
+    public String getItemId() {
+    	return itemId;
+    }
 
-    public String getItemName() { return itemName; }
-    public void setItemName(String itemName) { this.itemName = itemName; }
+    public void setItemId(String itemId) {
+    	this.itemId = itemId;
+    }
 
-    public String getGenre() { return genre; }
-    public void setGenre(String genre) { this.genre = genre; }
+    public String getItemName() {
+    	return itemName;
+    }
 
-    public int getShelfSeq() { return shelfSeq; }
-    public void setShelfSeq(int shelfSeq) { this.shelfSeq = shelfSeq; }
+    public void setItemName(String itemName) {
+    	this.itemName = itemName;
+    }
 
-    public int getStoreId() { return storeId; }
-    public void setStoreId(int storeId) { this.storeId = storeId; }
+    public String getGenre() {
+    	return genre;
+    }
 
-    public int getStockNow() { return stockNow; }
-    public void setStockNow(int stockNow) { this.stockNow = stockNow; }
+    public void setGenre(String genre) {
+    	this.genre = genre;
+    }
 
-    public int getStockMin() { return stockMin; }
-    public void setStockMin(int stockMin) { this.stockMin = stockMin; }
+    public int getShelfSeq() {
+    	return shelfSeq;
+    }
 
-    public int getPrice() { return price; }
-    public void setPrice(int price) { this.price = price; }
+    public void setShelfSeq(int shelfSeq) {
+    	this.shelfSeq = shelfSeq;
+    }
+
+    public int getStoreId() {
+    	return storeId;
+    }
+
+    public void setStoreId(int storeId) {
+    	this.storeId = storeId;
+    }
+
+    public int getStockNow() {
+    	return stockNow;
+    }
+
+    public void setStockNow(int stockNow) {
+    	this.stockNow = stockNow;
+    }
+
+    public int getStockMin() {
+    	return stockMin;
+    }
+
+    public void setStockMin(int stockMin) {
+    	this.stockMin = stockMin;
+    }
+
+    public int getPrice() {
+    	return price;
+    }
+    public void setPrice(int price) {
+    	this.price = price;
+    }
 
     // 表示用棚番号
-    public String getShelfId() { return shelfId; }
-    public void setShelfId(String shelfId) { this.shelfId = shelfId; }
+    public String getShelfId() {
+    	return shelfId;
+    }
 
-    @Override
+    public void setShelfId(String shelfId) {
+    	this.shelfId = shelfId;
+    }
+
+    public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	@Override
     public String toString() {
         return "StockBean [itemId=" + itemId +
                ", itemName=" + itemName +
                ", genre=" + genre +
                ", shelfSeq=" + shelfSeq +
                ", shelfId=" + shelfId +
+               ", category=" + category +
                ", storeId=" + storeId +
                ", stockNow=" + stockNow +
                ", stockMin=" + stockMin +

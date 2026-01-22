@@ -18,9 +18,11 @@ public class StockDao extends Dao {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT s.SHELF_SEQ, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, ");
-        sql.append("i.ITEM_NAME, i.PRICE ");
+        sql.append("i.ITEM_NAME, i.PRICE, ");
+        sql.append("sh.SHELF_ID, sh.CATEGORY ");
         sql.append("FROM STOCK s ");
         sql.append("JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID ");
+        sql.append("JOIN SHELF sh ON s.SHELF_SEQ = sh.SHELF_SEQ ");
         sql.append("WHERE s.STORE_ID = ? ");
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -47,6 +49,9 @@ public class StockDao extends Dao {
                     bean.setStockNow(rs.getInt("STOCK_NOW"));
                     bean.setStockMin(rs.getInt("STOCK_MIN"));
                     bean.setStoreId(storeId);
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setCategory(rs.getString("CATEGORY"));
+
                     list.add(bean);
                 }
             }
@@ -59,8 +64,10 @@ public class StockDao extends Dao {
     /** 商品IDで検索（バーコード検索） */
     public StockBean findByItemId(int storeId, String itemId) {
         String sql = "SELECT s.SHELF_SEQ, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, " +
-                     "i.ITEM_NAME, i.PRICE " +
+                     "i.ITEM_NAME, i.PRICE, " +
+                     "sh.SHELF_ID, sh.CATEGORY " +
                      "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID " +
+                     "JOIN SHELF sh ON s.SHELF_SEQ = sh.SHELF_SEQ " +
                      "WHERE s.STORE_ID = ? AND s.ITEM_ID = ?";
 
         try (Connection con = getConnection();
@@ -79,6 +86,9 @@ public class StockDao extends Dao {
                     bean.setStockNow(rs.getInt("STOCK_NOW"));
                     bean.setStockMin(rs.getInt("STOCK_MIN"));
                     bean.setStoreId(storeId);
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setCategory(rs.getString("CATEGORY"));
+
                     return bean;
                 }
             }
@@ -92,8 +102,10 @@ public class StockDao extends Dao {
     public List<StockBean> findByStore(int storeId) {
         List<StockBean> list = new ArrayList<>();
         String sql = "SELECT s.SHELF_SEQ, s.ITEM_ID, s.STOCK_NOW, s.STOCK_MIN, " +
-                     "i.ITEM_NAME, i.PRICE " +
+                     "i.ITEM_NAME, i.PRICE, " +
+                     "sh.SHELF_ID, sh.CATEGORY " +
                      "FROM STOCK s JOIN ITEMS i ON s.ITEM_ID = i.ITEM_ID " +
+                     "JOIN SHELF sh ON s.SHELF_SEQ = sh.SHELF_SEQ " +
                      "WHERE s.STORE_ID = ?";
 
         try (Connection con = getConnection();
@@ -111,6 +123,9 @@ public class StockDao extends Dao {
                     bean.setStockNow(rs.getInt("STOCK_NOW"));
                     bean.setStockMin(rs.getInt("STOCK_MIN"));
                     bean.setStoreId(storeId);
+                    bean.setShelfId(rs.getString("SHELF_ID"));
+                    bean.setCategory(rs.getString("CATEGORY"));
+
                     list.add(bean);
                 }
             }

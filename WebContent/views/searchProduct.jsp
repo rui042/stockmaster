@@ -57,7 +57,7 @@
 
     .search-box button{
       padding:10px 16px;
-      background:var(--btn-hover-bg);
+      background:var(--primary);
       color:#fff;
       border:none;
       border-radius:8px;
@@ -123,6 +123,40 @@
     .btn-history:hover {
       opacity: 0.85;
     }
+
+		/* 商品IDボタン */
+		.jan-cell {
+		  position: relative;
+		}
+
+		.jan-toggle {
+		  padding: 4px 8px;
+		  font-size: 1rem;
+		  background: #fff;
+		  border: 1px solid #ccc;
+		  border-radius: 6px;
+		  cursor: pointer;
+		}
+
+		.jan-popup {
+		  display: none;
+		  position: absolute;
+		  top: 32px;
+		  left: 0;
+		  background: #ffffff;
+		  color: #333;
+		  padding: 8px 12px;
+		  border-radius: 8px;
+		  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		  white-space: nowrap;
+		  z-index: 10;
+		  animation: fadeIn 0.25s ease;
+		}
+
+		@keyframes fadeIn {
+		  from { opacity: 0; transform: translateY(-6px); }
+		  to   { opacity: 1; transform: translateY(0); }
+		}
   </style>
 </head>
 <body>
@@ -155,6 +189,8 @@
               <tr>
                 <th>商品ID</th>
                 <th>商品名</th>
+                <th>棚番号</th>
+    						<th>分類</th>
                 <th>価格</th>
                 <th>現在庫</th>
                 <th>最小在庫</th>
@@ -165,8 +201,18 @@
             <tbody>
               <c:forEach var="p" items="${results}">
                 <tr>
-                  <td>${p.itemId}</td>
+                	<!-- 商品ID表示ボタン -->
+                  <td class="jan-cell">
+									  <button type="button" class="jan-toggle" onclick="toggleJan(this)">
+											🔍
+									  </button>
+									  <div class="jan-popup">
+									    ${p.itemId}
+									  </div>
+									</td>
                   <td>${p.itemName}</td>
+                  <td>${p.shelfId}</td>
+      						<td>${p.category}</td>
                   <td>¥${p.price}</td>
                   <td>${p.stockNow}</td>
                   <td>${p.stockMin}</td>
@@ -196,6 +242,28 @@
           <p>検索結果はありません。</p>
         </c:otherwise>
       </c:choose>
+
+      <script>
+			function toggleJan(btn) {
+			  const popup = btn.nextElementSibling;
+			  const isOpen = popup.style.display === "block";
+
+			  // すべて閉じる
+			  document.querySelectorAll(".jan-popup").forEach(el => el.style.display = "none");
+
+			  // 押した行だけ開く
+			  if (!isOpen) {
+			    popup.style.display = "block";
+			  }
+			}
+
+			// 画面のどこかを押したら閉じる
+			document.addEventListener("click", function(e) {
+			  if (!e.target.closest(".jan-cell")) {
+			    document.querySelectorAll(".jan-popup").forEach(el => el.style.display = "none");
+			  }
+			});
+			</script>
 
     </main>
   </div>

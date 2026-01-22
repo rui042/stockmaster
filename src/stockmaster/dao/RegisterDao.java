@@ -118,6 +118,21 @@ public class RegisterDao extends Dao {
                             }
                         }
                     }
+
+                    // 整合性チェック：新規棚が本当に STORE_ID と紐づいているか確認
+                    try (PreparedStatement verify = conn.prepareStatement(
+                            "SELECT COUNT(*) FROM SHELF WHERE SHELF_SEQ = ? AND STORE_ID = ?")) {
+
+                        verify.setInt(1, shelfSeq);
+                        verify.setInt(2, storeId);
+
+                        ResultSet vrs = verify.executeQuery();
+                        if (!vrs.next() || vrs.getInt(1) == 0) {
+                            conn.rollback();
+                            return "棚の作成に失敗しました（店舗IDが一致しません）。";
+                        }
+                    }
+
                 }
             }
 

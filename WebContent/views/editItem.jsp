@@ -84,12 +84,27 @@
 		    <h2>商品情報の編集</h2>
 		    <form action="updateItem" method="post">
 		      <input type="hidden" name="itemId" value="${param.itemId}" />
+
 		      <label>商品名
 		        <input type="text" name="itemName" value="${param.itemName}" required />
 		      </label>
+
+		      <label>棚ID
+					  <input type="text" name="shelfId" value="${currentShelfId}" required />
+					</label>
+
+					<label>分類
+            <input type="text" name="category" value="${item.category}" required />
+          </label>
+
 		      <label>価格
 		        <input type="number" name="price" value="${param.price}" min="0" required />
 		      </label>
+
+		      <label>備考
+					  <input type="text" name="note" value="${note}" class="note-input"/>
+					</label>
+
 		      <button type="submit">更新する</button>
 		    </form>
 		    <c:if test="${not empty message}">

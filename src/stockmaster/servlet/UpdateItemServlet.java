@@ -8,27 +8,42 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import stockmaster.bean.Item;
+import stockmaster.bean.ShelfBean;
 import stockmaster.dao.ItemDao;
 
 @WebServlet("/updateItem")
 public class UpdateItemServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
-    /** 編集画面表示（GET） */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
 
-        // パラメータをそのままJSPに渡す（itemId, itemName, price）
-        request.setAttribute("itemId", request.getParameter("itemId"));
-        request.setAttribute("itemName", request.getParameter("itemName"));
-        request.setAttribute("price", request.getParameter("price"));
+	    String itemId = request.getParameter("itemId");
+	    int storeId = (int) request.getSession().getAttribute("storeId");
 
-        // 編集画面へフォワード
-        request.getRequestDispatcher("/views/editItem.jsp").forward(request, response);
-    }
+	    ItemDao dao = new ItemDao();
 
-    /** 商品情報更新（POST） */
+	    // 商品情報
+	    Item item = dao.findItem(itemId, storeId);
+
+	    // STOCK → SHELF_SEQ
+	    int shelfSeq = dao.findShelfSeq(itemId, storeId);
+
+	    // SHELF 情報（ShelfBean）
+	    ShelfBean shelf = dao.findShelfBySeq(shelfSeq, storeId);
+
+	    // null 安全対策
+	    String shelfId = (shelf != null) ? shelf.getShelfId() : "";
+	    String note    = (shelf != null) ? shelf.getNote()    : "";
+
+	    request.setAttribute("item", item);
+	    request.setAttribute("currentShelfId", shelfId);
+	    request.setAttribute("note", note);
+
+	    request.getRequestDispatcher("/views/editItem.jsp").forward(request, response);
+	}
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -37,32 +52,40 @@ public class UpdateItemServlet extends HttpServlet {
 
         String itemId = request.getParameter("itemId");
         String itemName = request.getParameter("itemName");
-        String priceStr = request.getParameter("price");
+        int price = Integer.parseInt(request.getParameter("price"));
+        String shelfId = request.getParameter("shelfId");
+        String category = request.getParameter("category");
+        String note = request.getParameter("note");
+        int storeId = (int) request.getSession().getAttribute("storeId");
 
-        int price = 0;
-        try {
-            price = Integer.parseInt(priceStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("message", "価格が不正です");
-            request.setAttribute("itemId", itemId);
-            request.setAttribute("itemName", itemName);
-            request.setAttribute("price", priceStr);
-            request.getRequestDispatcher("/views/editItem.jsp").forward(request, response);
-            return;
-        }
+//        System.out.println("=== UpdateItemServlet.doPost Debug ===");
+//        System.out.println("POST itemId = " + itemId);
+//        System.out.println("POST itemName = " + itemName);
+//        System.out.println("POST price = " + price);
+//        System.out.println("POST shelfId = " + shelfId);
+//        System.out.println("POST storeId = " + storeId);
 
         ItemDao dao = new ItemDao();
-        boolean updated = dao.updateItem(itemId, itemName, price);
 
-        if (updated) {
-            request.setAttribute("message", "商品情報を更新しました");
+        // 入力された棚ID → SHELF_SEQ（店舗ごと）
+        int shelfSeq = dao.findShelfSeqByShelfId(shelfId, storeId);
+
+//        System.out.println("POST shelfSeq = " + shelfSeq);
+//        System.out.println("======================================");
+
+        // 棚が存在しない場合は分類と備考含め新規作成
+        if (shelfSeq == -1) {
+        	shelfSeq = dao.createShelf(shelfId, category, note, storeId);
         } else {
-            request.setAttribute("message", "更新に失敗しました");
+            // 既存棚なら分類と備考更新
+        	dao.updateShelfCategory(shelfSeq, category, storeId);
+            dao.updateShelfNote(shelfSeq, note, storeId);
         }
 
-        request.setAttribute("itemId", itemId);
-        request.setAttribute("itemName", itemName);
-        request.setAttribute("price", price);
-        request.getRequestDispatcher("/views/editItem.jsp").forward(request, response);
+        boolean updated = dao.updateItemAndShelf(itemId, itemName, price, shelfSeq, storeId);
+
+        request.setAttribute("message", updated ? "更新しました" : "更新に失敗しました");
+
+        doGet(request, response);
     }
 }
