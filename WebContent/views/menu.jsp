@@ -104,7 +104,44 @@
       font-size:0.95rem;
       cursor:pointer;
     }
-    .user-menu button:hover { background:#f0f7ff; }
+    .user-menu button:hover {
+    	background:#f0f7ff;
+    }
+
+    /* ===== 未ログインメッセージ ===== */
+		.login-warning {
+		  width: 100%;
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  justify-content: center;
+		  padding: 60px 20px;
+		  text-align: center;
+		  font-size: 1.2rem;
+		  color: #333;
+		}
+
+		.login-warning p {
+		  margin-bottom: 24px;
+		  font-weight: 600;
+		  white-space: nowrap;
+		}
+
+		.login-warning button {
+		  padding: 12px 28px;
+		  font-size: 1rem;
+		  background: var(--primary);
+		  color: #fff;
+		  border: none;
+		  border-radius: 8px;
+		  cursor: pointer;
+		  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		  transition: background 0.2s;
+		}
+
+		.login-warning button:hover {
+		  background: #084f96;
+		}
 
     /* ===== メイン部分 ===== */
     main {
@@ -213,7 +250,23 @@
 
   <main>
     <div class="menu-grid">
-    <!-- 共通メニュー -->
+    <!-- 	未ログイン -->
+	    <c:if test="${username == null}">
+			  <div class="login-warning">
+			    <p>ログイン状態が確認できません。ログインをしてください。</p>
+
+			    <form action="login" method="get">
+			      <button type="submit">ログイン画面へ</button>
+			    </form>
+			  </div>
+
+			  <!-- 未ログイン時はメニューを表示しない -->
+			  <c:remove var="sessionScope.isStaff" />
+			  <c:remove var="sessionScope.isAdmin" />
+			</c:if>
+
+      <!-- スタッフ専用 -->
+      <c:if test="${sessionScope.isStaff}">
       <form action="showMap" method="get">
         <button class="menu-card" type="submit">
           <div class="icon">🗺️</div><div>マップ表示</div>
@@ -231,8 +284,7 @@
           <div class="icon">🏬</div><div>店舗検索</div>
         </button>
       </form>
-      <!-- スタッフ専用 -->
-      <c:if test="${sessionScope.isStaff}">
+
         <form action="productRegister" method="get">
           <button class="menu-card" type="submit">
             <div class="icon">🛒</div><div>商品登録</div>
