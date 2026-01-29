@@ -151,14 +151,11 @@
   <!-- ロゴをリンク化して Menu ページへ遷移 -->
   	<a href="${pageContext.request.contextPath}/menu" class="logo" title="メニュー">SM</a>
 
-	<!-- 共通機能 -->
-    <!-- <a href="${pageContext.request.contextPath}/menu" title="メニュー">Menu</a> -->
-    <a href="${pageContext.request.contextPath}/showMap" title="地図">Map</a>
-    <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a>
-    <a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
-
 	<!-- スタッフ専用機能 -->
     <c:if test="${sessionScope.isStaff}">
+	    <a href="${pageContext.request.contextPath}/showMap" title="地図">Map</a>
+	    <!--  <a href="${pageContext.request.contextPath}/chat" title="チャット">Chat</a> -->
+    	<a href="${pageContext.request.contextPath}/searchStore" title="店舗検索">Store</a>
       <a href="${pageContext.request.contextPath}/productRegister" title="商品登録">Add</a>
       <a href="${pageContext.request.contextPath}/searchProduct" title="商品検索">Search</a>
       <a href="${pageContext.request.contextPath}/receiveStock" title="入荷処理">Recv</a>
@@ -166,9 +163,9 @@
     </c:if>
 
     <!-- 管理者専用機能 -->
-	  <c:if test="${sessionScope.isAdmin}">
+	  <!--<c:if test="${sessionScope.isAdmin}">
 	    <a href="${pageContext.request.contextPath}/register" title="新規登録">Register</a>
-	  </c:if>
+	  </c:if> -->
 
     <div class="bottom">v1.2</div>
   </nav>

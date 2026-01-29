@@ -273,11 +273,11 @@
         </button>
       </form>
 
-      <form action="chat" method="get">
+      <!-- <form action="chat" method="get">
         <button class="menu-card" type="submit">
           <div class="icon">💬</div><div>チャット相談</div>
         </button>
-      </form>
+      </form> -->
 
       <form action="searchStore" method="get">
         <button class="menu-card" type="submit">
@@ -311,14 +311,14 @@
       </c:if>
 
       <!-- 管理者専用 -->
-      <c:if test="${sessionScope.isAdmin}">
+      <!-- <c:if test="${sessionScope.isAdmin}">
         <form action="register" method="get">
           <button class="menu-card" type="submit">
             <div class="icon">🫂</div><div>新規登録</div>
           </button>
         </form>
       </c:if>
-    </div>
+    </div> -->
   </main>
 
   <!-- モーダル -->
