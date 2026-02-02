@@ -173,6 +173,13 @@
 		  <div id="toast"></div>
 
 		  <script>
+		  // バーコードリーダー読み取り
+			  document.getElementById("productId").addEventListener("keypress", (e) => {
+				  if (!/[0-9]/.test(e.key)) {
+				    e.preventDefault();
+				  }
+				});
+
 		    // テンキー入力制御
 		    function addNumber(num) {
 		      document.getElementById("quantity").value += num;
