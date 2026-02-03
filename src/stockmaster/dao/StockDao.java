@@ -137,24 +137,6 @@ public class StockDao extends Dao {
 
 
     // 入荷処理
-    /** 在庫更新（入荷数を加算） */
-    public boolean updateStock(int storeId, String itemId, int quantity) {
-        String sql = "UPDATE STOCK SET STOCK_NOW = STOCK_NOW + ? WHERE STORE_ID = ? AND ITEM_ID = ?";
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, quantity);
-            ps.setInt(2, storeId);
-            ps.setString(3, itemId);
-
-            int updated = ps.executeUpdate();
-            return updated > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     /** 入荷処理（在庫更新＋最新状態をSTOCK_STATUSに記録） */
     public boolean receiveStock(int storeId, String itemId, int quantity, String userId) {
         boolean result = false;
